@@ -14,6 +14,12 @@ MQTT mqtt;
 TimerHandle_t dataTimer;
 TimerHandle_t loadTimer;
 
+struct flags {
+  bool readTracer = false;
+  bool readDht = false;
+  bool publishMqtt = false;
+} intFlags;
+
 struct SensorsData {
   float temperature;
   float humidity;
@@ -52,23 +58,14 @@ struct SolarSettings {
   uint16_t loadOff = 0x0000;
 } TracerSettings;
 
-// bool acq = false;
+bool acq = false;
 void readTracer();
+void setupTracer();
 void readTempHum();
 String composeMessage();
 
 void dataPublishCallback() {
-  if (mqtt.datetimeSetted && mqtt.cmdRun) {
-    readTracer();
-    // readTempHum();
-    String message = composeMessage();
-    // Serial.println(message);
-    // Serial.printf("t: %d | °C: %2d\n", now(), SensorsReadings.temperature);
-
-    // acq = true;
-    mqtt.publishMessage(MQTT_PUBLISH_TOPIC, message, false);
-  }
-  xTimerStart(dataTimer, 0);
+  acq = true;
 }
 
 void loadControlCallback() {
@@ -85,7 +82,9 @@ void loadControlCallback() {
 }
 
 void setup() {
-  Serial.begin(SERIAL_SPEED);
+  #ifdef DEBUG
+    SERIAL_DEBUG.begin(SERIAL_DEBUG_SPEED);
+  #endif
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -96,20 +95,54 @@ void setup() {
                            pdFALSE, (void *)0,
                            reinterpret_cast<TimerCallbackFunction_t>(loadControlCallback));
 
-  while (WiFi.status() != WL_CONNECTED)
-  {
+  while (WiFi.status() != WL_CONNECTED) {
     delay(500);
-    Serial.print(".");
+    #ifdef DEBUG
+      SERIAL_DEBUG.print(".");
+    #endif
   }
-  Serial.println("\nWiFi connected\nIP address: ");
-  Serial.println(WiFi.localIP());
-
-  xTimerStart(dataTimer, 0);
-  xTimerStart(loadTimer, 0);
-  Serial.println("Init...");
+  #ifdef DEBUG
+    SERIAL_DEBUG.println("\nWiFi connected\nIP address: ");
+    SERIAL_DEBUG.println(WiFi.localIP());
+    SERIAL_DEBUG.println("Init...");
+  #endif
 
   /* SETUP TRACER */
+  setupTracer();
+
+  #ifdef DEBUG
+    SERIAL_DEBUG.println("---------------");
+  #endif
+
+  /* START TIMERS */
+  xTimerStart(dataTimer, 0);
+  xTimerStart(loadTimer, 0);
+}
+
+void loop() {
+  if (!mqtt.client.connected())
+    mqtt.reconnect();
+  mqtt.client.loop();
+
+  if(acq) {
+    acq = false;
+    if (mqtt.datetimeSetted && mqtt.cmdRun) {
+      readTracer();
+      readTempHum();
+      String message = composeMessage();
+      // #ifdef DEBUG
+      //   SERIAL_DEBUG.println(message);
+      //   SERIAL_DEBUG.printf("TEMP: %.2f°C | HUM: %.2f%\n", SensorsReadings.temperature, SensorsReadings.humidity);
+      // #endif
+      mqtt.publishMessage(MQTT_PUBLISH_TOPIC, message, false);
+    }
+    xTimerStart(dataTimer, 0);
+  }
+}
+
+void setupTracer() {
   uint8_t result;
+
   // BATTERY_TYPE
   result = TRACER.writeMultipleRegisters(TracerSettings.batteryType, MODBUS_ADDRESS_BATTERY_TYPE, 1);
   TRACER.exceptionHandler(result, "Write", "MODBUS_ADDRESS_BATTERY_TYPE");
@@ -132,47 +165,45 @@ void setup() {
   if (result != 0) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_BATTERY_TYPE");
   } else {
-    Serial.printf("BATTERY_TYPE: 0x%X\n", TracerReadings.batteryType);
+    #ifdef DEBUG
+      SERIAL_DEBUG.printf("BATTERY_TYPE: 0x%X\n", TracerReadings.batteryType);
+    #endif
   }
   // READ BATTERY_CAPACITY
   result = TRACER.readHoldingRegisters(MODBUS_ADDRESS_BATTERY_CAPACITY, &TracerReadings.batteryCapacity, 1);
   if (result != 0) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_BATTERY_CAPACITY");
   } else {
-    Serial.printf("BATTERY_CAPACITY: 0x%X\n", TracerReadings.batteryCapacity);
+    #ifdef DEBUG
+      SERIAL_DEBUG.printf("BATTERY_CAPACITY: 0x%X\n", TracerReadings.batteryCapacity);
+    #endif
   }
   // // READ CONTROLLER_SUPPLY
   // result = TRACER.readHoldingRegisters(MODBUS_ADDRESS_CONTROLLER_SUPPLY, &TracerReadings.controllerSupply, 1);
   // if (result != 0) {
   //   TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_CONTROLLER_SUPPLY");
   // } else {
-  //   Serial.printf("CONTROLLER_SUPPLY: 0x%X\n", TracerReadings.controllerSupply);
+  //   #ifdef DEBUG
+  //    SERIAL_DEBUG.printf("CONTROLLER_SUPPLY: 0x%X\n", TracerReadings.controllerSupply);
+  //   #endif
   // }
   // READ BATTERY_RATED_VOLTAGE_CODE
   result = TRACER.readHoldingRegisters(MODBUS_ADDRESS_BATTERY_RATED_VOLTAGE_CODE, &TracerReadings.batteryRatedVoltageCode, 1);
   if (result != 0) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_BATTERY_RATED_VOLTAGE_CODE");
   } else {
-    Serial.printf("BATTERY_RATED_VOLTAGE_CODE: 0x%X\n", TracerReadings.batteryRatedVoltageCode);
+    #ifdef DEBUG
+      SERIAL_DEBUG.printf("BATTERY_RATED_VOLTAGE_CODE: 0x%X\n", TracerReadings.batteryRatedVoltageCode);
+    #endif
   }
   // // READ LOAD_AUTO_ONOFF
   // result = TRACER.readCoils(MODBUS_ADDRESS_LOAD_AUTOMATIC_ONOFF, &TracerReadings.outputMode);
   // if (result != 0) {
   //     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_LOAD_AUTOMATIC_ONOFF");
   // } else {
-  //     Serial.printf("LOAD_AUTO_ONOFF: 0x%X\n", TracerReadings.outputMode);
-  // }
-  Serial.println("---------------");
-}
-
-void loop() {
-  if (!mqtt.client.connected())
-    mqtt.reconnect();
-  mqtt.client.loop();
-  // if(acq) {
-  //   String message = composeMessage();
-  //   mqtt.publishMessage(MQTT_PUBLISH_TOPIC, message, false);
-  //   acq = false;
+  //   #ifdef DEBUG
+  //     SERIAL_DEBUG.printf("LOAD_AUTO_ONOFF: 0x%X\n", TracerReadings.outputMode);
+  //   #endif
   // }
 }
 
@@ -185,77 +216,99 @@ void readTracer(){
   // if (result != 0) {
   //   TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_BATTERY_TEMP");
   // } else {
-  //   Serial.printf("BATTERY_TEMP: %f\n", TracerReadings.batteryTemperature);
+    // #ifdef DEBUG
+    //   SERIAL_DEBUG.printf("BATTERY_TEMP: %f\n", TracerReadings.batteryTemperature);
+    // #endif
   // }
   // READ BATTERY_CURRENT_VOLTAGE
   result = TRACER.readSingleInputRegisters(MODBUS_ADDRESS_BATTERY_CURRENT_VOLTAGE, &TracerReadings.batteryVoltage, true);
   if (result != 0) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_BATTERY_CURRENT_VOLTAGE");
   } else {
-    Serial.printf("BATTERY_VOLTAGE: %f\n", TracerReadings.batteryVoltage);
+    #ifdef DEBUG
+      SERIAL_DEBUG.printf("BATTERY_VOLTAGE: %f\n", TracerReadings.batteryVoltage);
+    #endif
   }
   // READ BATTERY_CHARGE_CURRENT
   result = TRACER.readSingleInputRegisters(MODBUS_ADDRESS_BATTERY_CHARGE_CURRENT, &TracerReadings.batteryCurrent, true);
   if (result != 0) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_BATTERY_CHARGE_CURRENT");
   } else {
-    Serial.printf("BATTERY_CURRENT: %f\n", TracerReadings.batteryCurrent);
+    #ifdef DEBUG
+      SERIAL_DEBUG.printf("BATTERY_CURRENT: %f\n", TracerReadings.batteryCurrent);
+    #endif
   }
   // READ BATTERY_SOC
   result = TRACER.readSingleInputRegisters(MODBUS_ADDRESS_BATTERY_SOC, &TracerReadings.batterySOC, false);
   if (result != 0) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_BATTERY_SOC");
   } else {
-    Serial.printf("BATTERY_SOC: %f\n", TracerReadings.batterySOC);
+    #ifdef DEBUG
+      SERIAL_DEBUG.printf("BATTERY_SOC: %f\n", TracerReadings.batterySOC);
+    #endif
   }
   // READ LOAD_VOLTAGE
   result = TRACER.readSingleInputRegisters(MODBUS_ADDRESS_LOAD_VOLTAGE, &TracerReadings.loadVoltage, true);
   if (result != 0) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_LOAD_VOLTAGE");
   } else {
-    Serial.printf("LOAD_VOLTAGE: %f\n", TracerReadings.loadVoltage);
+    #ifdef DEBUG
+      SERIAL_DEBUG.printf("LOAD_VOLTAGE: %f\n", TracerReadings.loadVoltage);
+    #endif
   }
   // READ LOAD_CURRENT
   result = TRACER.readSingleInputRegisters(MODBUS_ADDRESS_LOAD_CURRENT, &TracerReadings.loadCurrent, true);
   if (result != 0) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_LOAD_CURRENT");
   } else {
-    Serial.printf("LOAD_CURRENT: %f\n", TracerReadings.loadCurrent);
+    #ifdef DEBUG
+      SERIAL_DEBUG.printf("LOAD_CURRENT: %f\n", TracerReadings.loadCurrent);
+    #endif
   }
   // // READ LOAD_POWER
   // result = TRACER.readInputRegisters(MODBUS_ADDRESS_LOAD_POWER, &TracerReadings.loadPower, 2, false);
   // if (result != 0) {
   //   TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_LOAD_POWER");
   // } else {
-  //   Serial.printf("LOAD_POWER: %x\n", TracerReadings.loadPower);
+    // #ifdef DEBUG
+    //   SERIAL_DEBUG.printf("LOAD_POWER: %x\n", TracerReadings.loadPower);
+    // #endif
   // }
   // READ PV_VOLTAGE
   result = TRACER.readSingleInputRegisters(MODBUS_ADDRESS_PV_VOLTAGE, &TracerReadings.pvVoltage, true);
   if (result != 0) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_PV_VOLTAGE");
   } else {
-    Serial.printf("PV_VOLTAGE: %f\n", TracerReadings.pvVoltage);
+    #ifdef DEBUG
+      SERIAL_DEBUG.printf("PV_VOLTAGE: %f\n", TracerReadings.pvVoltage);
+    #endif
   }
   // READ PV_CURRENT
   result = TRACER.readSingleInputRegisters(MODBUS_ADDRESS_PV_CURRENT, &TracerReadings.pvCurrent, true);
   if (result != 0) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_PV_CURRENT");
   } else {
-    Serial.printf("PV_CURRENT: %f\n", TracerReadings.pvCurrent);
+    #ifdef DEBUG
+      SERIAL_DEBUG.printf("PV_CURRENT: %f\n", TracerReadings.pvCurrent);
+    #endif
   }
   // // READ BATTERY_MAX_VOLTAGE_TODAY
   // result = TRACER.readSingleInputRegisters(MODBUS_ADDRESS_STAT_MAX_BATTERY_VOLTAGE_TODAY, &TracerReadings.batteryMaxVoltageToday, true);
   // if (result != 0) {
   //   TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_STAT_MAX_BATTERY_VOLTAGE_TODAY");
   // } else {
-  //   Serial.printf("BATTERY_MAX_VOLTAGE: %f\n", TracerReadings.batteryMaxVoltageToday); ///FIXXXXXX
+    // #ifdef DEBUG
+    //   SERIAL_DEBUG.printf("BATTERY_MAX_VOLTAGE: %f\n", TracerReadings.batteryMaxVoltageToday); ///FIXXXXXX
+    // #endif
   // }
   // // READ BATTERY_STATUS
   // result = TRACER.readSingleInputRegisters(MODBUS_ADDRESS_BATTERY_STATUS, &TracerReadings.batteryStatus, false);
   // if (result != 0) {
   //   TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_BATTERY_STATUS");
   // } else {
-  //   Serial.printf("BATTERY_STATUS: %d\n", TracerReadings.batteryStatus / 100);
+    // #ifdef DEBUG
+    //   SERIAL_DEBUG.printf("BATTERY_STATUS: %d\n", TracerReadings.batteryStatus / 100);
+    // #endif
   // }
 }
 
