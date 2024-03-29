@@ -14,6 +14,7 @@ MQTT mqtt;
 TimerHandle_t dataTimer;
 TimerHandle_t loadTimer;
 
+bool acq = false;
 struct flags {
   bool readTracer = false;
   bool readDht = false;
@@ -58,7 +59,6 @@ struct SolarSettings {
   uint16_t loadOff = 0x0000;
 } TracerSettings;
 
-bool acq = false;
 void readTracer();
 void setupTracer();
 void readTempHum();
@@ -134,7 +134,14 @@ void loop() {
       //   SERIAL_DEBUG.println(message);
       //   SERIAL_DEBUG.printf("TEMP: %.2f°C | HUM: %.2f%\n", SensorsReadings.temperature, SensorsReadings.humidity);
       // #endif
-      mqtt.publishMessage(MQTT_PUBLISH_TOPIC, message, false);
+      bool pubStatus = mqtt.publishMessage(MQTT_PUBLISH_TOPIC, message, false);
+      if (!pubStatus) {
+        #ifdef DEBUG
+          SERIAL_DEBUG.println("--- PUBLISH ERROR OCCURRED ---");
+        #endif
+      } else {
+        SERIAL_DEBUG.println("- MESSAGE PUBLISHED -");
+      }
     }
     xTimerStart(dataTimer, 0);
   }
