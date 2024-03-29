@@ -22,8 +22,8 @@
 // WiFI configurations
 // #define WIFI_SSID "Greater"
 // #define WIFI_PASSWORD "greater23"
-#define WIFI_SSID "BATCAVERNA"
-#define WIFI_PASSWORD "batciaone01"
+#define WIFI_SSID "BATCAVE"
+#define WIFI_PASSWORD "bathello01"
 
 // MQTT configurations
 // #define MQTT_HOST "broker.hivemq.com"
