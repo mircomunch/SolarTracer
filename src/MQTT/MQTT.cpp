@@ -54,10 +54,10 @@ void MQTT::reconnect()
     }
 }
 
-void MQTT::publishMessage(const char *topic, String payload, bool retained)
+bool MQTT::publishMessage(const char *topic, String payload, bool retained)
 {
-    if (this->client.publish(topic, payload.c_str(), retained))
-        Serial.println("Message published [" + String(topic) + "]: " + payload);
+    bool status = this->client.publish(topic, payload.c_str(), retained);
+    return status;
 }
 
 void MQTT::setDatetime(String datetime)

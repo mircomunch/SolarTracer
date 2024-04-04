@@ -1,6 +1,9 @@
 // Serial debug
-#define SERIAL_DEBUG Serial
-#define SERIAL_DEBUG_SPEED 115200
+#define DEBUG
+#ifdef DEBUG
+    #define SERIAL_DEBUG Serial
+    #define SERIAL_DEBUG_SPEED 115200
+#endif
 
 // MAX 485 pin DE, not(RE) connected togheter
 #define PIN_RE_DE 27
@@ -15,9 +18,6 @@
 // DHT configurations
 #define DHTPIN 13
 #define DHTTYPE DHT11
-
-// Serial comunication
-#define SERIAL_SPEED 115200
 
 // WiFI configurations
 // #define WIFI_SSID "Greater"

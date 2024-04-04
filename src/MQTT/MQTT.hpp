@@ -14,7 +14,7 @@ public:
     MQTT();
     PubSubClient client;
     void reconnect();
-    void publishMessage(const char *topic, String payload, boolean retained);
+    bool publishMessage(const char *topic, String payload, boolean retained);
 
     bool datetimeSetted;
     bool cmdRun;
