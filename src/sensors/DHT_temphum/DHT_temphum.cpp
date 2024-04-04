@@ -1,4 +1,5 @@
 #include "DHT_temphum.hpp"
+#include "dht11_setup.hpp"
 
 DHTsensor::DHTsensor() : dhtu(DHTPIN, DHTTYPE)
 {}

@@ -6,7 +6,7 @@
 
 SolarModbus TRACER;
 
-#ifdef TEMPERATURE
+#ifdef SENS_TEMPHUM
   DHTsensor dht;
 #endif
 
@@ -21,6 +21,28 @@ struct flags {
   bool publishMqtt = false;
 } intFlags;
 
+// struct singleData {
+//   int timestamp;
+//   float val;
+// };
+
+// struct dataFormat {
+//   String data_id;
+//   String unit;
+//   singleData data [10]; //define a maximum n of data transmitted -> to be improved 
+// };
+
+// struct readingsData {
+//   dataFormat readings [READINGS_N];
+// } readingsQueue;
+
+// struct dhtData {
+//   dataFormat temperature;
+//   dataFormat humidity;
+// } dhtReadings;
+
+// dhtReadings.temperature.data_id = TEMP_ID;
+// dhtReadings.temperature.unit = TEMP_UNIT;
 struct SensorsData {
   float temperature;
   float humidity;
@@ -140,7 +162,9 @@ void loop() {
           SERIAL_DEBUG.println("--- PUBLISH ERROR OCCURRED ---");
         #endif
       } else {
-        SERIAL_DEBUG.println("- MESSAGE PUBLISHED -");
+        #ifdef DEBUG
+          SERIAL_DEBUG.println("- MESSAGE PUBLISHED -");
+        #endif
       }
     }
     xTimerStart(dataTimer, 0);
@@ -320,13 +344,28 @@ void readTracer(){
 }
 
 void readTempHum() {
-  #ifdef TEMPERATURE
+  #ifdef SENS_TEMPHUM
     SensorsReadings.temperature = dht.readTemperature();
     SensorsReadings.humidity = dht.readHumidity();
+    // singleData data;
+    // data.timestamp = (int)now();
+    // data.val = dht.readTemperature();
+    // dhtReadings.temperature.data.append(data);
+    // data.timestamp = (int)now();
+    // data.val = dht.readHumidity();
+    // dhtReadings.humidity.data.append(data);
   #endif
 }
 
 String composeMessage() {
+  // StaticJsonDocument<200> obj;
+  // String message;
+  // obj["id"] = BOARD_ID;
+  // obj["location"] = LOCATION;
+  // obj["readings"] = readingsQueue;
+
+  // serializeJson(obj, message);
+
   String message;
   message = "{\"id\":\"LL.1-US.1\",";
   message += "\"location\":\"IT-Parma-Unipr\",";

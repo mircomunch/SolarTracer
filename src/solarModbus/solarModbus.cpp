@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <solarModbus.hpp>
+#include "solarModbus_setup.hpp"
 
 SolarModbus::SolarModbus(Stream &serial) {
     pinMode(PIN_RE_DE, OUTPUT);
