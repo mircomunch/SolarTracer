@@ -12,7 +12,7 @@ SolarModbus::SolarModbus(Stream &serial) {
     this->node.postTransmission(resetPin);
 
     #if defined(SERIAL_DEBUG)
-    SERIAL_DEBUG.begin(SERIAL_DEBUG_SPEED);
+        SERIAL_DEBUG.begin(SERIAL_DEBUG_SPEED);
     #endif // SERIAL_DEBUG
 }
 
@@ -53,10 +53,11 @@ String SolarModbus::exceptionDescription(uint8_t exception) {
     return exceptionDescription;
 }
 
-void SolarModbus::exceptionHandler(uint8_t result, String mode, String address) {
+String SolarModbus::exceptionHandler(uint8_t result, String mode, String address) {
     if (result != 0) {
-        SERIAL_DEBUG.println(mode + " (" + address + "): " + this->exceptionDescription(result));
+        return (mode + " (" + address + "): " + this->exceptionDescription(result));
     }
+    return "";
 }
 
 /* Modbus function 0x10 */

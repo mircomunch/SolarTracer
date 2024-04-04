@@ -14,7 +14,7 @@
 #define LOCATION "IT-Parma-Unipr"
 
 // Sensors activated
-// #define SENS_TEMPHUM
+#define SENS_TEMPHUM
 
 #ifdef SENS_TEMPHUM
     #define READINGS_N SOLAR_N_READINGS + TEMPHUM_N_READINGS

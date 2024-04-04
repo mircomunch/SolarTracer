@@ -16,7 +16,7 @@ public:
     uint8_t readSingleInputRegisters(uint16_t address, void *variable, bool oneHundredTimes);
 
     String exceptionDescription(uint8_t exception);
-    void exceptionHandler(uint8_t result, String mode, String address);
+    String exceptionHandler(uint8_t result, String mode, String address);
 
 private:
     static void setPin();

@@ -41,8 +41,6 @@ struct temphumData {
   dataFormat humidity;
 } temphumReadings;
 
-// temphumReadings.temperature.data_id = TEMP_ID;
-// temphumReadings.temperature.unit = TEMP_UNIT;
 struct SensorsData {
   float temperature;
   float humidity;
@@ -343,8 +341,14 @@ void readTracer(){
   // }
 }
 
+void setupReadings(){
+  temphumReadings.temperature.data_id = "env_temperature";
+  temphumReadings.temperature.unit = "°C";
+}
+
 void readTempHum() {
   #ifdef SENS_TEMPHUM
+    
     SensorsReadings.temperature = dht.readTemperature();
     SensorsReadings.humidity = dht.readHumidity();
     // singleData data;
@@ -358,15 +362,13 @@ void readTempHum() {
 }
 
 String composeMessage() {
+  String message;
   // StaticJsonDocument<200> obj;
-  // String message;
   // obj["id"] = BOARD_ID;
   // obj["location"] = LOCATION;
   // obj["readings"] = readingsQueue;
-
   // serializeJson(obj, message);
 
-  String message;
   message = "{\"id\":\"LL.1-US.1\",";
   message += "\"location\":\"IT-Parma-Unipr\",";
   message += "\"timestamp\":";
