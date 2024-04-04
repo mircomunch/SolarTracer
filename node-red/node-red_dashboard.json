@@ -1668,5 +1668,18 @@
                 "c2b4b43c.194ce8"
             ]
         ]
+    },
+    {
+        "id": "aaf755ce.d9c338",
+        "type": "sqlite",
+        "z": "a67851146fe13f34",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "",
+        "x": 330,
+        "y": 540,
+        "wires": [
+            []
+        ]
     }
 ]

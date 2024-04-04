@@ -1548,7 +1548,6 @@
         "id": "bcdaebed.40b698",
         "type": "mqtt out",
         "z": "66a4ff9e.6ffac",
-        "d": true,
         "name": "",
         "topic": "unipr/lab/test",
         "qos": "0",
@@ -1602,9 +1601,11 @@
         "rap": true,
         "rh": 0,
         "x": 230,
-        "y": 200,
+        "y": 360,
         "wires": [
-            []
+            [
+                "14859b23.1a0e55"
+            ]
         ]
     },
     {
@@ -1622,8 +1623,7 @@
         "y": 140,
         "wires": [
             [
-                "bcdaebed.40b698",
-                "14859b23.1a0e55"
+                "bcdaebed.40b698"
             ]
         ]
     },
@@ -1640,8 +1640,8 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 620,
-        "y": 200,
+        "x": 430,
+        "y": 360,
         "wires": []
     },
     {

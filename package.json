@@ -2,7 +2,11 @@
     "name": "SolarTracer",
     "description": "A Node-RED Project",
     "version": "0.0.1",
-    "dependencies": {},
+    "dependencies": {
+        "node-red-dashboard": "3.4.0",
+        "node-red-node-ui-table": "0.4.3",
+        "node-red-node-sqlite": "1.0.3"
+    },
     "node-red": {
         "settings": {
             "flowFile": "node-red/node-red_dashboard.json",
