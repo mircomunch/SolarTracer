@@ -1,3 +1,6 @@
+#include "solarModbus_setup.hpp"
+#include "dht11_setup.hpp"
+
 // Serial debug
 #define DEBUG
 #ifdef DEBUG
@@ -11,10 +14,10 @@
 #define LOCATION "IT-Parma-Unipr"
 
 // Sensors activated
-#define SENS_TEMPHUM
+// #define SENS_TEMPHUM
 
 #ifdef SENS_TEMPHUM
-    #define READINGS_N READINGS_N + TEMPHUM_N_READINGS
+    #define READINGS_N SOLAR_N_READINGS + TEMPHUM_N_READINGS
 #else
     #define READINGS_N SOLAR_N_READINGS
 #endif

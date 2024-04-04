@@ -21,28 +21,28 @@ struct flags {
   bool publishMqtt = false;
 } intFlags;
 
-// struct singleData {
-//   int timestamp;
-//   float val;
-// };
+struct singleData {
+  int timestamp;
+  float val;
+};
 
-// struct dataFormat {
-//   String data_id;
-//   String unit;
-//   singleData data [10]; //define a maximum n of data transmitted -> to be improved 
-// };
+struct dataFormat {
+  String data_id;
+  String unit;
+  singleData data [10]; //define a maximum n of data transmitted -> to be improved 
+};
 
-// struct readingsData {
-//   dataFormat readings [READINGS_N];
-// } readingsQueue;
+struct readingsData {
+  dataFormat readings [READINGS_N];
+} readingsQueue;
 
-// struct dhtData {
-//   dataFormat temperature;
-//   dataFormat humidity;
-// } dhtReadings;
+struct temphumData {
+  dataFormat temperature;
+  dataFormat humidity;
+} temphumReadings;
 
-// dhtReadings.temperature.data_id = TEMP_ID;
-// dhtReadings.temperature.unit = TEMP_UNIT;
+// temphumReadings.temperature.data_id = TEMP_ID;
+// temphumReadings.temperature.unit = TEMP_UNIT;
 struct SensorsData {
   float temperature;
   float humidity;
