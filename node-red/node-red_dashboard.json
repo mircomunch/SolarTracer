@@ -466,7 +466,18 @@
     {
         "id": "788b23d842bc47a5",
         "type": "ui_group",
-        "name": "Home",
+        "name": "select id",
+        "tab": "fe8897304a518907",
+        "order": 2,
+        "disp": false,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "b1ebb2f6142bb52b",
+        "type": "ui_group",
+        "name": "Update datetime",
         "tab": "fe8897304a518907",
         "order": 1,
         "disp": false,
@@ -488,8 +499,8 @@
         "correl": "",
         "expiry": "",
         "broker": "b2797592163729b8",
-        "x": 490,
-        "y": 160,
+        "x": 450,
+        "y": 140,
         "wires": []
     },
     {
@@ -530,8 +541,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 320,
-        "y": 160,
+        "x": 300,
+        "y": 140,
         "wires": [
             [
                 "bcdaebed.40b698"
@@ -637,7 +648,7 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 490,
-        "y": 280,
+        "y": 260,
         "wires": []
     },
     {
@@ -699,7 +710,7 @@
         "stream": false,
         "addname": "",
         "x": 490,
-        "y": 320,
+        "y": 300,
         "wires": [
             [
                 "18cf775846e1d345"
@@ -743,7 +754,7 @@
         "to": "",
         "reg": false,
         "x": 650,
-        "y": 320,
+        "y": 300,
         "wires": [
             [
                 "6d1ade5a.b6516",
@@ -763,7 +774,7 @@
         "onceDelay": 0.1,
         "topic": "",
         "x": 140,
-        "y": 440,
+        "y": 402.99998664855957,
         "wires": [
             [
                 "87b20b7fed27c053"
@@ -775,7 +786,7 @@
         "type": "ui_dropdown",
         "z": "66a4ff9e.6ffac",
         "name": "",
-        "label": "",
+        "label": "LLAB ID:",
         "tooltip": "",
         "place": "Select option",
         "group": "788b23d842bc47a5",
@@ -789,8 +800,8 @@
         "topic": "topic",
         "topicType": "msg",
         "className": "",
-        "x": 620,
-        "y": 440,
+        "x": 600,
+        "y": 402.99998664855957,
         "wires": [
             [
                 "9a1c90b91b4ce4ab"
@@ -806,7 +817,7 @@
         "sql": "SELECT DISTINCT device_id FROM readings;",
         "name": "select IDs",
         "x": 300,
-        "y": 440,
+        "y": 402.99998664855957,
         "wires": [
             [
                 "3cde4a6fbcbf40fa"
@@ -832,28 +843,13 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 820,
-        "y": 440,
+        "x": 800,
+        "y": 402.99998664855957,
         "wires": [
-            []
+            [
+                "61cd804a44d85376"
+            ]
         ]
-    },
-    {
-        "id": "2446c155409aafb3",
-        "type": "debug",
-        "z": "66a4ff9e.6ffac",
-        "name": "debug 1",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 620,
-        "y": 480,
-        "wires": []
     },
     {
         "id": "3cde4a6fbcbf40fa",
@@ -868,11 +864,265 @@
         "finalize": "",
         "libs": [],
         "x": 450,
-        "y": 440,
+        "y": 402.99998664855957,
         "wires": [
             [
-                "809e1b370265e5b2",
-                "2446c155409aafb3"
+                "809e1b370265e5b2"
+            ]
+        ]
+    },
+    {
+        "id": "1506c6fc3e03d0b3",
+        "type": "inject",
+        "z": "66a4ff9e.6ffac",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 480,
+        "wires": [
+            [
+                "fdee44f320f2ddbf"
+            ]
+        ]
+    },
+    {
+        "id": "fdee44f320f2ddbf",
+        "type": "mqtt out",
+        "z": "66a4ff9e.6ffac",
+        "name": "",
+        "topic": "unipr/lab/datetime",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "b2797592163729b8",
+        "x": 390,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "0940773e2ed8c7fe",
+        "type": "debug",
+        "z": "66a4ff9e.6ffac",
+        "name": "home /datetime",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 380,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "4f4ff47458ff061a",
+        "type": "ui_button",
+        "z": "66a4ff9e.6ffac",
+        "name": "",
+        "group": "b1ebb2f6142bb52b",
+        "order": 1,
+        "width": 4,
+        "height": 1,
+        "passthru": false,
+        "label": "Update datetime",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "date",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 120,
+        "y": 540,
+        "wires": [
+            [
+                "fdee44f320f2ddbf",
+                "0940773e2ed8c7fe"
+            ]
+        ]
+    },
+    {
+        "id": "60e5e14befaf520e",
+        "type": "ui_switch",
+        "z": "66a4ff9e.6ffac",
+        "name": "",
+        "label": "Run",
+        "tooltip": "",
+        "group": "03f7e9793f9f8efa",
+        "order": 3,
+        "width": 2,
+        "height": 1,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "run",
+        "topicType": "str",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": false,
+        "className": "",
+        "x": 147.9999885559082,
+        "y": 641.0000171661377,
+        "wires": [
+            [
+                "edf69b94ff593071"
+            ]
+        ]
+    },
+    {
+        "id": "442470fdfa8cc991",
+        "type": "mqtt out",
+        "z": "66a4ff9e.6ffac",
+        "name": "",
+        "topic": "unipr/lab/cmd",
+        "qos": "0",
+        "retain": "true",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "b2797592163729b8",
+        "x": 620,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "ee4dd2d1165bfba5",
+        "type": "ui_switch",
+        "z": "66a4ff9e.6ffac",
+        "name": "",
+        "label": "Load",
+        "tooltip": "",
+        "group": "03f7e9793f9f8efa",
+        "order": 5,
+        "width": 2,
+        "height": 1,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "load",
+        "topicType": "str",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": false,
+        "className": "",
+        "x": 147.9999885559082,
+        "y": 601.0000171661377,
+        "wires": [
+            [
+                "edf69b94ff593071"
+            ]
+        ]
+    },
+    {
+        "id": "d92f3f65686fa67c",
+        "type": "debug",
+        "z": "66a4ff9e.6ffac",
+        "name": "home /cmd",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 610,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "61cd804a44d85376",
+        "type": "link out",
+        "z": "66a4ff9e.6ffac",
+        "name": "selected new id",
+        "mode": "link",
+        "links": [
+            "404a3379aed3f904"
+        ],
+        "x": 895,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "5e804feb59ebb02a",
+        "type": "function",
+        "z": "66a4ff9e.6ffac",
+        "name": "function 2",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "edf69b94ff593071",
+        "type": "join",
+        "z": "66a4ff9e.6ffac",
+        "name": "",
+        "mode": "custom",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": true,
+        "timeout": "",
+        "count": "1",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "num",
+        "reduceFixup": "",
+        "x": 287.9999885559082,
+        "y": 621.0000171661377,
+        "wires": [
+            [
+                "d92f3f65686fa67c"
             ]
         ]
     },
