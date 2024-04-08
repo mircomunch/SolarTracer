@@ -1240,7 +1240,7 @@
         "sqlquery": "msg.topic",
         "sql": "",
         "name": "select *",
-        "x": 420,
+        "x": 440,
         "y": 740,
         "wires": [
             [
@@ -1324,7 +1324,7 @@
         "outputs": 1,
         "useDifferentColor": false,
         "className": "",
-        "x": 570,
+        "x": 590,
         "y": 780,
         "wires": [
             []
@@ -1342,7 +1342,7 @@
         "complete": "false",
         "statusVal": "",
         "statusType": "auto",
-        "x": 580,
+        "x": 600,
         "y": 740,
         "wires": []
     },
