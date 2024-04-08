@@ -556,7 +556,7 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 130,
+        "x": 150,
         "y": 260,
         "wires": [
             [
@@ -608,7 +608,7 @@
         "type": "debug",
         "z": "66a4ff9e.6ffac",
         "name": "",
-        "active": true,
+        "active": false,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
@@ -682,7 +682,6 @@
         "y": 320,
         "wires": [
             [
-                "a1dc1b3202e70e78",
                 "18cf775846e1d345"
             ]
         ]
@@ -700,7 +699,7 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 650,
+        "x": 830,
         "y": 320,
         "wires": []
     },
@@ -727,7 +726,8 @@
         "y": 360,
         "wires": [
             [
-                "6d1ade5a.b6516"
+                "6d1ade5a.b6516",
+                "a1dc1b3202e70e78"
             ]
         ]
     },
