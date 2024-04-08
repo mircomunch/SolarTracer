@@ -200,10 +200,12 @@
         "port": "8883",
         "tls": "",
         "clientid": "",
+        "autoConnect": true,
         "usetls": true,
         "protocolVersion": "4",
         "keepalive": "60",
         "cleansession": true,
+        "autoUnsubscribe": true,
         "birthTopic": "",
         "birthQos": "0",
         "birthPayload": "",
@@ -216,6 +218,7 @@
         "willQos": "0",
         "willPayload": "",
         "willMsg": {},
+        "userProps": "",
         "sessionExpiry": ""
     },
     {
@@ -782,6 +785,19 @@
         ]
     },
     {
+        "id": "aaf755ce.d9c338",
+        "type": "sqlite",
+        "z": "a67851146fe13f34",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "",
+        "x": 330,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    },
+    {
         "id": "514a5add.daed64",
         "type": "debug",
         "z": "b7f41819.c332e8",
@@ -810,6 +826,7 @@
         "nl": false,
         "rap": true,
         "rh": 0,
+        "inputs": 0,
         "x": 200,
         "y": 200,
         "wires": [
@@ -1233,6 +1250,129 @@
         ]
     },
     {
+        "id": "b2053abd.bb2568",
+        "type": "function",
+        "z": "b7f41819.c332e8",
+        "d": true,
+        "name": "chart generator",
+        "func": "msg = {\n        topic:\"humidity\",\n        payload: msg.dht.humidity,\n        timestamp: msg.timestamp\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 440,
+        "wires": [
+            [
+                "a971811fe00e9ad6"
+            ]
+        ]
+    },
+    {
+        "id": "4d734443.3586cc",
+        "type": "ui_gauge",
+        "z": "b7f41819.c332e8",
+        "name": "",
+        "group": "21ef646.da7bd9c",
+        "order": 1,
+        "width": 5,
+        "height": 4,
+        "gtype": "gage",
+        "title": "Voltage",
+        "label": "V",
+        "format": "{{msg.pv.voltage}}",
+        "min": 0,
+        "max": "24",
+        "colors": [
+            "#df3434",
+            "#e6e600",
+            "#00d652"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 740,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "416b80ff.99698",
+        "type": "ui_gauge",
+        "z": "b7f41819.c332e8",
+        "name": "",
+        "group": "21ef646.da7bd9c",
+        "order": 2,
+        "width": 5,
+        "height": 4,
+        "gtype": "gage",
+        "title": "Current",
+        "label": "A",
+        "format": "{{msg.pv.current}}",
+        "min": "0",
+        "max": "10",
+        "colors": [
+            "#df3434",
+            "#e6e600",
+            "#00d652"
+        ],
+        "seg1": "0",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 740,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "a08c0d76.e9e8",
+        "type": "ui_gauge",
+        "z": "b7f41819.c332e8",
+        "name": "",
+        "group": "21ef646.da7bd9c",
+        "order": 3,
+        "width": 5,
+        "height": 4,
+        "gtype": "gage",
+        "title": "Power",
+        "label": "W",
+        "format": "{{msg.pv.power}}",
+        "min": 0,
+        "max": "10",
+        "colors": [
+            "#34d4df",
+            "#e6e600",
+            "#00d652"
+        ],
+        "seg1": "1",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 870,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "f1d71550.279428",
+        "type": "function",
+        "z": "b7f41819.c332e8",
+        "name": "function 1",
+        "func": "const pow = Math.abs(msg.pv.current * msg.pv.voltage);\nmsg.pv.power = Math.round((pow + Number.EPSILON) * 100) / 100;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 740,
+        "y": 640,
+        "wires": [
+            [
+                "a08c0d76.e9e8"
+            ]
+        ]
+    },
+    {
         "id": "8be060d.0b232a",
         "type": "ui_table",
         "z": "eae119be.e0ca48",
@@ -1422,129 +1562,6 @@
         "wires": []
     },
     {
-        "id": "b2053abd.bb2568",
-        "type": "function",
-        "z": "b7f41819.c332e8",
-        "d": true,
-        "name": "chart generator",
-        "func": "msg = {\n        topic:\"humidity\",\n        payload: msg.dht.humidity,\n        timestamp: msg.timestamp\n};\n\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 480,
-        "y": 440,
-        "wires": [
-            [
-                "a971811fe00e9ad6"
-            ]
-        ]
-    },
-    {
-        "id": "4d734443.3586cc",
-        "type": "ui_gauge",
-        "z": "b7f41819.c332e8",
-        "name": "",
-        "group": "21ef646.da7bd9c",
-        "order": 1,
-        "width": 5,
-        "height": 4,
-        "gtype": "gage",
-        "title": "Voltage",
-        "label": "V",
-        "format": "{{msg.pv.voltage}}",
-        "min": 0,
-        "max": "24",
-        "colors": [
-            "#df3434",
-            "#e6e600",
-            "#00d652"
-        ],
-        "seg1": "",
-        "seg2": "",
-        "diff": false,
-        "className": "",
-        "x": 740,
-        "y": 560,
-        "wires": []
-    },
-    {
-        "id": "416b80ff.99698",
-        "type": "ui_gauge",
-        "z": "b7f41819.c332e8",
-        "name": "",
-        "group": "21ef646.da7bd9c",
-        "order": 2,
-        "width": 5,
-        "height": 4,
-        "gtype": "gage",
-        "title": "Current",
-        "label": "A",
-        "format": "{{msg.pv.current}}",
-        "min": "0",
-        "max": "10",
-        "colors": [
-            "#df3434",
-            "#e6e600",
-            "#00d652"
-        ],
-        "seg1": "0",
-        "seg2": "",
-        "diff": false,
-        "className": "",
-        "x": 740,
-        "y": 600,
-        "wires": []
-    },
-    {
-        "id": "a08c0d76.e9e8",
-        "type": "ui_gauge",
-        "z": "b7f41819.c332e8",
-        "name": "",
-        "group": "21ef646.da7bd9c",
-        "order": 3,
-        "width": 5,
-        "height": 4,
-        "gtype": "gage",
-        "title": "Power",
-        "label": "W",
-        "format": "{{msg.pv.power}}",
-        "min": 0,
-        "max": "10",
-        "colors": [
-            "#34d4df",
-            "#e6e600",
-            "#00d652"
-        ],
-        "seg1": "1",
-        "seg2": "",
-        "diff": false,
-        "className": "",
-        "x": 870,
-        "y": 640,
-        "wires": []
-    },
-    {
-        "id": "f1d71550.279428",
-        "type": "function",
-        "z": "b7f41819.c332e8",
-        "name": "function 1",
-        "func": "const pow = Math.abs(msg.pv.current * msg.pv.voltage);\nmsg.pv.power = Math.round((pow + Number.EPSILON) * 100) / 100;\n\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 740,
-        "y": 640,
-        "wires": [
-            [
-                "a08c0d76.e9e8"
-            ]
-        ]
-    },
-    {
         "id": "bcdaebed.40b698",
         "type": "mqtt out",
         "z": "66a4ff9e.6ffac",
@@ -1600,6 +1617,7 @@
         "nl": false,
         "rap": true,
         "rh": 0,
+        "inputs": 0,
         "x": 230,
         "y": 360,
         "wires": [
@@ -1667,19 +1685,6 @@
             [
                 "c2b4b43c.194ce8"
             ]
-        ]
-    },
-    {
-        "id": "aaf755ce.d9c338",
-        "type": "sqlite",
-        "z": "a67851146fe13f34",
-        "sqlquery": "msg.topic",
-        "sql": "",
-        "name": "",
-        "x": 330,
-        "y": 540,
-        "wires": [
-            []
         ]
     }
 ]
