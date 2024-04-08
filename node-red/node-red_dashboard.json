@@ -1174,20 +1174,22 @@
         "id": "67fa5535314a69ca",
         "type": "ui_toast",
         "z": "66a4ff9e.6ffac",
-        "position": "top right",
+        "position": "dialog",
         "displayTime": "3",
         "highlight": "",
         "sendall": false,
-        "outputs": 0,
+        "outputs": 1,
         "ok": "OK",
         "cancel": "",
         "raw": false,
         "className": "",
         "topic": "",
         "name": "",
-        "x": 830,
+        "x": 810,
         "y": 640,
-        "wires": []
+        "wires": [
+            []
+        ]
     },
     {
         "id": "104cce666467579d",
