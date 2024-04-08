@@ -1,0 +1,9 @@
+batt_voltage
+batt_current
+batt_soc
+pv_current
+pv_voltage
+load_current
+load_voltage
+env_temperature
+env_humidity

@@ -1,3 +1,6 @@
+#include "solarModbus_setup.hpp"
+#include "dht11_setup.hpp"
+
 // Serial debug
 #define DEBUG
 #ifdef DEBUG
@@ -5,19 +8,19 @@
     #define SERIAL_DEBUG_SPEED 115200
 #endif
 
-// MAX 485 pin DE, not(RE) connected togheter
-#define PIN_RE_DE 27
-
 // BOARD NAME
 #define BOARD_NAME "digilent"
+#define BOARD_ID "LL-1.US-1"
+#define LOCATION "IT-Parma-Unipr"
 
 // Sensors activated
-// #define CURRENT
-#define TEMPERATURE
+#define SENS_TEMPHUM
 
-// DHT configurations
-#define DHTPIN 13
-#define DHTTYPE DHT11
+#ifdef SENS_TEMPHUM
+    #define READINGS_N SOLAR_N_READINGS + TEMPHUM_N_READINGS
+#else
+    #define READINGS_N SOLAR_N_READINGS
+#endif
 
 // WiFI configurations
 // #define WIFI_SSID "Greater"
@@ -39,6 +42,10 @@
 #define MQTT_PASSWORD "Admin123"
 #define CERT // define if certificate needed for broker connection
 
-// Message configurations
+// Timer configurations
 #define DATA_TIMER 2000
 #define LOAD_TIMER 1000
+
+//SOLAR_TIMER
+//DHT_TIMER
+//PUBLISH_TIMER
