@@ -1,5 +1,19 @@
 [
     {
+        "id": "66a4ff9e.6ffac",
+        "type": "tab",
+        "label": "Dummy uC",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "e5a4ca6.b600a38",
+        "type": "tab",
+        "label": "MQTT - sensors db",
+        "disabled": false,
+        "info": ""
+    },
+    {
         "id": "a67851146fe13f34",
         "type": "tab",
         "label": "MQTT - datetime e cmd",
@@ -17,13 +31,6 @@
         "id": "eae119be.e0ca48",
         "type": "tab",
         "label": "log",
-        "disabled": false,
-        "info": ""
-    },
-    {
-        "id": "66a4ff9e.6ffac",
-        "type": "tab",
-        "label": "Flow 1",
         "disabled": false,
         "info": ""
     },
@@ -425,6 +432,12 @@
         "width": "16",
         "collapse": true,
         "className": ""
+    },
+    {
+        "id": "c34d6f8a.52a95",
+        "type": "sqlitedb",
+        "db": "/home/pi/Desktop/Mirco/unique.db",
+        "mode": "RWC"
     },
     {
         "id": "62b6322a.94451c",
@@ -1070,7 +1083,7 @@
         "title": "Current",
         "label": "A",
         "format": "{{msg.load.current}}",
-        "min": "-10",
+        "min": "0",
         "max": "10",
         "colors": [
             "#df3434",
@@ -1558,8 +1571,8 @@
         "correl": "",
         "expiry": "",
         "broker": "b2797592163729b8",
-        "x": 610,
-        "y": 140,
+        "x": 570,
+        "y": 120,
         "wires": []
     },
     {
@@ -1589,26 +1602,6 @@
         ]
     },
     {
-        "id": "37c47fe1.849c6",
-        "type": "mqtt in",
-        "z": "66a4ff9e.6ffac",
-        "name": "",
-        "topic": "unipr/lab/test",
-        "qos": "2",
-        "datatype": "auto",
-        "broker": "b2797592163729b8",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "x": 230,
-        "y": 360,
-        "wires": [
-            [
-                "14859b23.1a0e55"
-            ]
-        ]
-    },
-    {
         "id": "c2b4b43c.194ce8",
         "type": "function",
         "z": "66a4ff9e.6ffac",
@@ -1619,30 +1612,13 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 420,
-        "y": 140,
+        "x": 400,
+        "y": 120,
         "wires": [
             [
                 "bcdaebed.40b698"
             ]
         ]
-    },
-    {
-        "id": "14859b23.1a0e55",
-        "type": "debug",
-        "z": "66a4ff9e.6ffac",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 430,
-        "y": 360,
-        "wires": []
     },
     {
         "id": "91b979ee.e701b8",
@@ -1662,7 +1638,7 @@
         "onceDelay": 0.1,
         "topic": "",
         "x": 230,
-        "y": 80,
+        "y": 100,
         "wires": [
             [
                 "c2b4b43c.194ce8"
@@ -1670,14 +1646,89 @@
         ]
     },
     {
-        "id": "aaf755ce.d9c338",
+        "id": "9c45fb9e.7aaca8",
+        "type": "mqtt in",
+        "z": "66a4ff9e.6ffac",
+        "name": "",
+        "topic": "unipr/lab/test",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "b2797592163729b8",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "x": 230,
+        "y": 320,
+        "wires": [
+            [
+                "8043130f.d312",
+                "9baf41c8.c185f"
+            ]
+        ]
+    },
+    {
+        "id": "9baf41c8.c185f",
+        "type": "function",
+        "z": "66a4ff9e.6ffac",
+        "name": "msg parser",
+        "func": "var query = [];\nvar id = msg.payload.id;\nvar loc = msg.payload.loc;\n\nmsg = {\n        id: id,\n        location: loc,\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 340,
+        "wires": [
+            [
+                "152e7e68.390582"
+            ]
+        ]
+    },
+    {
+        "id": "8043130f.d312",
+        "type": "debug",
+        "z": "66a4ff9e.6ffac",
+        "name": "MQTT /test",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 450,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "152e7e68.390582",
+        "type": "debug",
+        "z": "66a4ff9e.6ffac",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 610,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "6d1ade5a.b6516",
         "type": "sqlite",
-        "z": "a67851146fe13f34",
+        "z": "66a4ff9e.6ffac",
+        "mydb": "c34d6f8a.52a95",
         "sqlquery": "msg.topic",
         "sql": "",
-        "name": "",
-        "x": 330,
-        "y": 540,
+        "name": "insert",
+        "x": 430,
+        "y": 380,
         "wires": [
             []
         ]
