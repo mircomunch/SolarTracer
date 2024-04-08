@@ -757,7 +757,7 @@
         "z": "66a4ff9e.6ffac",
         "name": "startup",
         "props": [],
-        "repeat": "2",
+        "repeat": "",
         "crontab": "",
         "once": true,
         "onceDelay": 0.1,
