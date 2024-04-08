@@ -1290,7 +1290,7 @@
         "fieldType": "msg",
         "format": "handlebars",
         "syntax": "mustache",
-        "template": "SELECT\n    timestamp, val, unit\nFROM\n    readings\nWHERE\n    device_id=\"{{global.selectedID}}\"\nAND\n    (data_id=\"batt_voltage\");",
+        "template": "SELECT\n    timestamp, val, unit\nFROM\n    readings\nWHERE\n    device_id=\"{{global.selectedID}}\"\nAND\n    (data_id=\"batt_voltage\"\n    OR\n    data_id=\"pv_voltage\"\n    OR\n    data_id=\"load_voltage\");",
         "output": "str",
         "x": 180,
         "y": 740,
