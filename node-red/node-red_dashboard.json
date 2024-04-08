@@ -207,10 +207,12 @@
         "port": "8883",
         "tls": "",
         "clientid": "",
+        "autoConnect": true,
         "usetls": true,
         "protocolVersion": "4",
         "keepalive": "60",
         "cleansession": true,
+        "autoUnsubscribe": true,
         "birthTopic": "",
         "birthQos": "0",
         "birthPayload": "",
@@ -223,6 +225,7 @@
         "willQos": "0",
         "willPayload": "",
         "willMsg": {},
+        "userProps": "",
         "sessionExpiry": ""
     },
     {
@@ -823,6 +826,7 @@
         "nl": false,
         "rap": true,
         "rh": 0,
+        "inputs": 0,
         "x": 200,
         "y": 200,
         "wires": [
@@ -1608,12 +1612,13 @@
         "name": "",
         "func": "// Math.floor(Math.random()*10000)\n\nmsg.payload = {\n    id: \"LL-1.US-1\",\n    location: \"IT-Parma-Unipr\",\n    readings: [\n        {\n            data_id: \"env_temperature\",\n            unit: \"°C\",\n            data: [\n                {\n                    timestamp: msg.time+Math.floor(Math.random()*10000),\n                    val: (15+Math.random()*15).toFixed(2)\n                },\n                {\n                    timestamp: msg.time+Math.floor(Math.random()*10000),\n                    val: (15+Math.random()*15).toFixed(2)\n                },\n                {\n                    timestamp: msg.time+Math.floor(Math.random()*10000),\n                    val: (15+Math.random()*15).toFixed(2)\n                }\n            ]\n        },\n        {\n            data_id: \"batt_voltage\",\n            unit: \"V\",\n            data: [\n                {\n                    timestamp: msg.time+Math.floor(Math.random()*10000),\n                    val: (10+Math.random()*4).toFixed(2)\n                },\n                {\n                    timestamp: msg.time+Math.floor(Math.random()*10000),\n                    val: (10+Math.random()*4).toFixed(2)\n                }\n            ]\n        },\n        {\n            data_id: \"env_humidity\",\n            unit: \"%\",\n            data: [\n                {\n                    timestamp: msg.time+Math.floor(Math.random()*10000),\n                    val: (50+Math.random()*30).toFixed(2)\n                }\n            ]\n        },\n        {\n            data_id: \"batt_current\",\n            unit: \"A\",\n            data: [\n                {\n                    timestamp: msg.time+Math.floor(Math.random()*10000),\n                    val: (0.5+Math.random()*2).toFixed(2)\n                }\n            ]\n        },\n        {\n            data_id: \"batt_soc\",\n            unit: \"%\",\n            data: [\n                {\n                    timestamp: msg.time+Math.floor(Math.random()*10000),\n                    val: (20+Math.random()*50).toFixed(2)\n                }\n            ]\n        },\n        {\n            data_id: \"pv_current\",\n            unit: \"A\",\n            data: [\n                {\n                    timestamp: msg.time+Math.floor(Math.random()*10000),\n                    val: (1+Math.random()*4).toFixed(2)\n                }\n            ]\n        },\n        {\n            data_id: \"pv_voltage\",\n            unit: \"V\",\n            data: [\n                {\n                    timestamp: msg.time+Math.floor(Math.random()*10000),\n                    val: (11+Math.random()*9).toFixed(2)\n                }\n            ]\n        },\n        {\n            data_id: \"load_current\",\n            unit: \"A\",\n            data: [\n                {\n                    timestamp: msg.time+Math.floor(Math.random()*10000),\n                    val: (2+Math.random()*4).toFixed(2)\n                }\n            ]\n        },\n        {\n            data_id: \"load_voltage\",\n            unit: \"V\",\n            data: [\n                {\n                    timestamp: msg.time+Math.floor(Math.random()*10000),\n                    val: (12+Math.random()*2).toFixed(2)\n                }\n            ]\n        }\n    ]\n};\n\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 400,
-        "y": 120,
+        "x": 420,
+        "y": 140,
         "wires": [
             [
                 "bcdaebed.40b698"
@@ -1732,5 +1737,41 @@
         "wires": [
             []
         ]
+    },
+    {
+        "id": "262373ca39f16d3d",
+        "type": "function",
+        "z": "66a4ff9e.6ffac",
+        "name": "function 2",
+        "func": "var id = msg.payload.id;\nvar location = msg.payload.loc;\n\nmsg.payload = {\n    id:id,\n    location:location\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 360,
+        "wires": [
+            [
+                "df0efa362d8641ef"
+            ]
+        ]
+    },
+    {
+        "id": "df0efa362d8641ef",
+        "type": "debug",
+        "z": "66a4ff9e.6ffac",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 580,
+        "y": 360,
+        "wires": []
     }
 ]
