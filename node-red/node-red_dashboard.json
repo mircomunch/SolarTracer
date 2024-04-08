@@ -803,7 +803,7 @@
         "z": "66a4ff9e.6ffac",
         "mydb": "c34d6f8a.52a95",
         "sqlquery": "fixed",
-        "sql": "SELECT DISTINCT device_id FROM readings; ",
+        "sql": "SELECT DISTINCT device_id FROM readings;",
         "name": "select IDs",
         "x": 300,
         "y": 440,
@@ -836,7 +836,8 @@
         "y": 440,
         "wires": [
             [
-                "809e1b370265e5b2"
+                "809e1b370265e5b2",
+                "2446c155409aafb3"
             ]
         ]
     },
@@ -864,6 +865,22 @@
         "wires": [
             []
         ]
+    },
+    {
+        "id": "2446c155409aafb3",
+        "type": "debug",
+        "z": "66a4ff9e.6ffac",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 480,
+        "wires": []
     },
     {
         "id": "62b6322a.94451c",
