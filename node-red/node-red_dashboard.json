@@ -570,7 +570,7 @@
         "type": "function",
         "z": "66a4ff9e.6ffac",
         "name": "msg parser",
-        "func": "var insertions = [];\nvar id = msg.payload.id;\nvar location = msg.payload.location;\nvar readings = msg.payload.readings;\n\nvar start_query = \"INSERT INTO readings VALUES ('\"+ id + \"', '\";\nfor (let r = 0; r < readings.length; r++) {\n        const read = readings[r];\n        const data = read.data;\n        var mid_query = start_query + read.data_id + \"', \";\n        for (let d = 0; d < data.length; d++) {\n                const element = data[d];\n                var end_query = mid_query\n                + element.timestamp + \", \"\n                + element.val + \", '\"\n                + read.unit + \"');\";\n                insertions.push(end_query);\n        }\n}\n\nmsg = {\n        id: id,\n        location: location,\n        readings: readings,\n        payload: insertions\n};\n\nreturn msg;",
+        "func": "var insertions = [];\nvar id = msg.payload.id;\nvar location = msg.payload.location;\nvar readings = msg.payload.readings;\n\nvar start_query = \"INSERT INTO readings VALUES (\\\"\"+ id + \"\\\", \\\"\";\nfor (let r = 0; r < readings.length; r++) {\n        const read = readings[r];\n        const data = read.data;\n        var mid_query = start_query + read.data_id + \"\\\", \";\n        for (let d = 0; d < data.length; d++) {\n                const element = data[d];\n                var end_query = mid_query\n                + element.timestamp + \", \"\n                + element.val + \", \\\"\"\n                + read.unit + \"\\\");\";\n                insertions.push(end_query);\n        }\n}\n\nmsg = {\n        id: id,\n        location: location,\n        readings: readings,\n        payload: insertions\n};\n\nreturn msg;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
@@ -628,8 +628,8 @@
         "sqlquery": "msg.topic",
         "sql": "",
         "name": "insert",
-        "x": 810,
-        "y": 360,
+        "x": 830,
+        "y": 320,
         "wires": [
             []
         ]
@@ -699,8 +699,8 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 830,
-        "y": 320,
+        "x": 790,
+        "y": 380,
         "wires": []
     },
     {
@@ -722,8 +722,8 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 670,
-        "y": 360,
+        "x": 650,
+        "y": 320,
         "wires": [
             [
                 "6d1ade5a.b6516",
