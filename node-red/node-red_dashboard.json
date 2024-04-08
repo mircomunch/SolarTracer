@@ -439,8 +439,20 @@
     {
         "id": "c34d6f8a.52a95",
         "type": "sqlitedb",
-        "db": "/home/pi/Desktop/Mirco/unique.db",
+        "db": "databaseFile",
         "mode": "RWC"
+    },
+    {
+        "id": "050d58ee72c9f1d2",
+        "type": "global-config",
+        "name": "global-config",
+        "env": [
+            {
+                "name": "databaseFile",
+                "value": "C:\\Users\\mirco\\Desktop\\sqlite\\unique.db",
+                "type": "str"
+            }
+        ]
     },
     {
         "id": "bcdaebed.40b698",
