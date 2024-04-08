@@ -1174,7 +1174,7 @@
         "id": "67fa5535314a69ca",
         "type": "ui_toast",
         "z": "66a4ff9e.6ffac",
-        "position": "bottom right",
+        "position": "top right",
         "displayTime": "3",
         "highlight": "",
         "sendall": false,
