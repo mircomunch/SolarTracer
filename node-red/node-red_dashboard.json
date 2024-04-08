@@ -486,6 +486,17 @@
         "className": ""
     },
     {
+        "id": "8de535f3426c7c74",
+        "type": "ui_group",
+        "name": "commands",
+        "tab": "fe8897304a518907",
+        "order": 3,
+        "disp": false,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
         "id": "bcdaebed.40b698",
         "type": "mqtt out",
         "z": "66a4ff9e.6ffac",
@@ -971,7 +982,7 @@
         "name": "",
         "label": "Run",
         "tooltip": "",
-        "group": "03f7e9793f9f8efa",
+        "group": "8de535f3426c7c74",
         "order": 3,
         "width": 2,
         "height": 1,
@@ -1023,7 +1034,7 @@
         "name": "",
         "label": "Load",
         "tooltip": "",
-        "group": "03f7e9793f9f8efa",
+        "group": "8de535f3426c7c74",
         "order": 5,
         "width": 2,
         "height": 1,
