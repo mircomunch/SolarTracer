@@ -32,9 +32,7 @@ struct dataFormat {
   singleData data [10]; //define a maximum n of data transmitted -> to be improved 
 };
 
-struct readingsData {
-  dataFormat readings [READINGS_N];
-} readingsQueue;
+dataFormat readings [READINGS_N];
 
 struct temphumData {
   dataFormat temperature;
@@ -98,7 +96,7 @@ void loadControlCallback() {
     result = TRACER.writeSingleCoil(TracerSettings.loadOff, MODBUS_ADDRESS_LOAD_MANUAL_ONOFF);
   }
   TRACER.exceptionHandler(result, "Write", "MODBUS_ADDRESS_LOAD_MANUAL_ONOFF");
-  xTimerStart(loadTimer, 0);
+  // xTimerStart(loadTimer, 0);
 }
 
 void setup() {
@@ -341,24 +339,30 @@ void readTracer(){
   // }
 }
 
+void clearData() {
+  //delete all prev timestamp-val
+}
+
 void setupReadings(){
-  temphumReadings.temperature.data_id = "env_temperature";
-  temphumReadings.temperature.unit = "°C";
+  temphumReadings.temperature.data_id = TEMP_ID;
+  temphumReadings.temperature.unit = TEMP_UNIT;
+  temphumReadings.humidity.data_id = HUM_ID;
+  temphumReadings.humidity.unit = HUM_UNIT;
 }
 
 void readTempHum() {
   #ifdef SENS_TEMPHUM
-    
-    SensorsReadings.temperature = dht.readTemperature();
-    SensorsReadings.humidity = dht.readHumidity();
+    // SensorsReadings.temperature = dht.readTemperature();
+    // SensorsReadings.humidity = dht.readHumidity();
+
     // singleData data;
     // data.timestamp = (int)now();
     // data.val = dht.readTemperature();
-    // dhtReadings.temperature.data.append(data);
+    // temphumReadings.temperature.data[0] = data;
     // data.timestamp = (int)now();
     // data.val = dht.readHumidity();
-    // dhtReadings.humidity.data.append(data);
-  #endif
+    // temphumReadings.humidity.data.append(data);
+#endif
 }
 
 String composeMessage() {
@@ -369,8 +373,12 @@ String composeMessage() {
   // obj["readings"] = readingsQueue;
   // serializeJson(obj, message);
 
-  message = "{\"id\":\"LL.1-US.1\",";
-  message += "\"location\":\"IT-Parma-Unipr\",";
+  message = "{\"id\":\"";
+  message += BOARD_ID;
+  message += "\",";
+  message += "\"location\":\"";
+  message += LOCATION;
+  message += "\",";
   message += "\"timestamp\":";
   message += (int)now();
   message += "000,";

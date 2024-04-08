@@ -53,11 +53,19 @@ String SolarModbus::exceptionDescription(uint8_t exception) {
     return exceptionDescription;
 }
 
-String SolarModbus::exceptionHandler(uint8_t result, String mode, String address) {
+// String SolarModbus::exceptionHandler(uint8_t result, String mode, String address) {
+//     if (result != 0) {
+//         return (mode + " (" + address + "): " + this->exceptionDescription(result));
+//     }
+//     return "";
+// }
+
+void SolarModbus::exceptionHandler(uint8_t result, String mode, String address) {
     if (result != 0) {
-        return (mode + " (" + address + "): " + this->exceptionDescription(result));
+        #ifdef DEBUG
+            SERIAL_DEBUG.println(mode + " (" + address + "): " + this->exceptionDescription(result));
+        #endif
     }
-    return "";
 }
 
 /* Modbus function 0x10 */
