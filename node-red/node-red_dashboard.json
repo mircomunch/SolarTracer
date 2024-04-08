@@ -786,7 +786,7 @@
         "onceDelay": 0.1,
         "topic": "",
         "x": 140,
-        "y": 402.99998664855957,
+        "y": 400,
         "wires": [
             [
                 "87b20b7fed27c053"
@@ -813,7 +813,7 @@
         "topicType": "msg",
         "className": "",
         "x": 600,
-        "y": 402.99998664855957,
+        "y": 400,
         "wires": [
             [
                 "9a1c90b91b4ce4ab"
@@ -829,7 +829,7 @@
         "sql": "SELECT DISTINCT device_id FROM readings;",
         "name": "select IDs",
         "x": 300,
-        "y": 402.99998664855957,
+        "y": 400,
         "wires": [
             [
                 "3cde4a6fbcbf40fa"
@@ -856,7 +856,7 @@
         "to": "",
         "reg": false,
         "x": 800,
-        "y": 402.99998664855957,
+        "y": 400,
         "wires": [
             [
                 "61cd804a44d85376"
@@ -876,7 +876,7 @@
         "finalize": "",
         "libs": [],
         "x": 450,
-        "y": 402.99998664855957,
+        "y": 400,
         "wires": [
             [
                 "809e1b370265e5b2"
@@ -1088,8 +1088,8 @@
         "links": [
             "404a3379aed3f904"
         ],
-        "x": 895,
-        "y": 460,
+        "x": 945,
+        "y": 400,
         "wires": []
     },
     {
@@ -1150,10 +1150,10 @@
         "propertyType": "global",
         "rules": [
             {
-                "t": "nnull"
+                "t": "nempty"
             },
             {
-                "t": "null"
+                "t": "empty"
             }
         ],
         "checkall": "true",
