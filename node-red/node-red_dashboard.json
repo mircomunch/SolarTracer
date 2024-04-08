@@ -1096,7 +1096,7 @@
         "type": "function",
         "z": "66a4ff9e.6ffac",
         "name": "add id to cmd",
-        "func": "msg.payload.push({\n    id: global.get(\"selectedID\")\n});\nreturn msg;",
+        "func": "msg.payload.id = global.get(\"selectedID\");\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
