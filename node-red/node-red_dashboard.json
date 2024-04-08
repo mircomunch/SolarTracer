@@ -570,10 +570,10 @@
         "type": "function",
         "z": "66a4ff9e.6ffac",
         "name": "msg parser",
-        "func": "var query = [];\nvar id = msg.payload.id;\nvar location = msg.payload.location;\nvar readings = msg.payload.readings;\n\nmsg = {\n        id: id,\n        location: location,\n        readings: readings\n};\n\nreturn msg;",
+        "func": "var insertions = [];\nvar id = msg.payload.id;\nvar location = msg.payload.location;\nvar readings = msg.payload.readings;\n\nvar start_query = \"INSERT INTO readings VALUES (\"+ id + \", \";\nfor (let r = 0; r < readings.length; r++) {\n        const read = readings[r];\n        const data = read.data;\n        var mid_query = start_query + read.data_id + \", \";\n        for (let d = 0; d < data.length; d++) {\n                const element = data[d];\n                var end_query = mid_query\n                + element.timestamp + \", \"\n                + element.val + \", \"\n                + read.unit;\n                insertions.push(query)\n        }\n        \n}\n\nmsg = {\n        id: id,\n        location: location,\n        readings: readings\n};\n\nreturn msg;",
         "outputs": 1,
         "timeout": "",
-        "noerr": 0,
+        "noerr": 1,
         "initialize": "",
         "finalize": "",
         "libs": [],
@@ -631,6 +631,39 @@
         "y": 380,
         "wires": [
             []
+        ]
+    },
+    {
+        "id": "8284e44e8c1628da",
+        "type": "sqlite",
+        "z": "66a4ff9e.6ffac",
+        "mydb": "c34d6f8a.52a95",
+        "sqlquery": "fixed",
+        "sql": "CREATE TABLE IF NOT EXISTS readings (device_id TEXT, data_id TEXT, timestamp INTEGER, val REAL, unit TEXT);",
+        "name": "create table readings",
+        "x": 460,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "377b26799312c54a",
+        "type": "inject",
+        "z": "66a4ff9e.6ffac",
+        "name": "startup",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 220,
+        "y": 40,
+        "wires": [
+            [
+                "8284e44e8c1628da"
+            ]
         ]
     },
     {
