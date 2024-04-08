@@ -673,7 +673,9 @@
         "x": 830,
         "y": 320,
         "wires": [
-            []
+            [
+                "8fbd4d0bfa30cdff"
+            ]
         ]
     },
     {
@@ -858,9 +860,7 @@
         "x": 800,
         "y": 400,
         "wires": [
-            [
-                "61cd804a44d85376"
-            ]
+            []
         ]
     },
     {
@@ -1080,19 +1080,6 @@
         "wires": []
     },
     {
-        "id": "61cd804a44d85376",
-        "type": "link out",
-        "z": "66a4ff9e.6ffac",
-        "name": "selected new id",
-        "mode": "link",
-        "links": [
-            "404a3379aed3f904"
-        ],
-        "x": 945,
-        "y": 400,
-        "wires": []
-    },
-    {
         "id": "5e804feb59ebb02a",
         "type": "function",
         "z": "66a4ff9e.6ffac",
@@ -1228,6 +1215,49 @@
         "reg": false,
         "x": 350,
         "y": 20,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8fbd4d0bfa30cdff",
+        "type": "link out",
+        "z": "66a4ff9e.6ffac",
+        "name": "new data inserted",
+        "mode": "link",
+        "links": [
+            "4ed79b28090616db"
+        ],
+        "x": 915,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "4ed79b28090616db",
+        "type": "link in",
+        "z": "66a4ff9e.6ffac",
+        "name": "update charts",
+        "links": [
+            "8fbd4d0bfa30cdff"
+        ],
+        "x": 75,
+        "y": 740,
+        "wires": [
+            [
+                "109046a88dc97557"
+            ]
+        ]
+    },
+    {
+        "id": "109046a88dc97557",
+        "type": "sqlite",
+        "z": "66a4ff9e.6ffac",
+        "mydb": "c34d6f8a.52a95",
+        "sqlquery": "fixed",
+        "sql": "SELECT\n    (data_id, timestamp)\nFROM\n    readings\nWHERE\n    device_id=\"{{global.selectedID}}\"\nAND\n    (data_id=\"batt_voltage\"\n    OR\n    data_id=\"pv_voltage\"\n    OR\n    data_id=\"load_voltage\");",
+        "name": "select *",
+        "x": 180,
+        "y": 740,
         "wires": [
             []
         ]
