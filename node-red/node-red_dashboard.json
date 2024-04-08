@@ -705,7 +705,8 @@
         "y": 60,
         "wires": [
             [
-                "8284e44e8c1628da"
+                "8284e44e8c1628da",
+                "40a309aa804128fa"
             ]
         ]
     },
@@ -1206,6 +1207,29 @@
             [
                 "67fa5535314a69ca"
             ]
+        ]
+    },
+    {
+        "id": "40a309aa804128fa",
+        "type": "change",
+        "z": "66a4ff9e.6ffac",
+        "name": "",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "selectedID",
+                "pt": "global"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 350,
+        "y": 20,
+        "wires": [
+            []
         ]
     },
     {
