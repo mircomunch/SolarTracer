@@ -1240,30 +1240,11 @@
         "sqlquery": "msg.topic",
         "sql": "",
         "name": "select *",
-        "x": 320,
+        "x": 420,
         "y": 740,
         "wires": [
-            [
-                "424da12b73dc9fcd"
-            ]
+            []
         ]
-    },
-    {
-        "id": "424da12b73dc9fcd",
-        "type": "debug",
-        "z": "66a4ff9e.6ffac",
-        "name": "debug 1",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 460,
-        "y": 740,
-        "wires": []
     },
     {
         "id": "b1bb71b72d9fa9da",
@@ -1274,9 +1255,9 @@
         "fieldType": "msg",
         "format": "handlebars",
         "syntax": "mustache",
-        "template": "SELECT\n    timestamp, val, unit\nFROM\n    readings\nWHERE\n    device_id=\"{{global.selectedID}}\"\nAND\n    (data_id=\"batt_voltage\"\n    OR\n    data_id=\"pv_voltage\"\n    OR\n    data_id=\"load_voltage\");",
+        "template": "SELECT\n    data_id, timestamp, val, unit\nFROM\n    readings\nWHERE\n    device_id=\"{{global.selectedID}}\"\nAND\n    (data_id=\"batt_voltage\"\n    OR\n    data_id=\"pv_voltage\"\n    OR\n    data_id=\"load_voltage);",
         "output": "str",
-        "x": 180,
+        "x": 280,
         "y": 740,
         "wires": [
             [
@@ -1295,12 +1276,90 @@
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "x": 50,
+        "x": 130,
         "y": 740,
         "wires": [
             [
-                "b1bb71b72d9fa9da"
+                "b1bb71b72d9fa9da",
+                "c8fb06748e1f502c"
             ]
+        ]
+    },
+    {
+        "id": "c8fb06748e1f502c",
+        "type": "template",
+        "z": "66a4ff9e.6ffac",
+        "name": "",
+        "field": "topic",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "SELECT\n    timestamp, val, unit\nFROM\n    readings\nWHERE\n    device_id=\"{{global.selectedID}}\"\nAND\n    data_id=\"pv_voltage\";",
+        "output": "str",
+        "x": 280,
+        "y": 800,
+        "wires": [
+            [
+                "ea2595f6e6b4ea0c"
+            ]
+        ]
+    },
+    {
+        "id": "ea2595f6e6b4ea0c",
+        "type": "sqlite",
+        "z": "66a4ff9e.6ffac",
+        "mydb": "c34d6f8a.52a95",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "select *",
+        "x": 420,
+        "y": 800,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "16d7367b9998d10b",
+        "type": "ui_chart",
+        "z": "66a4ff9e.6ffac",
+        "name": "",
+        "group": "d73b7901ecb735dc",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "label": "chart",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": "10",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "60",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 730,
+        "y": 740,
+        "wires": [
+            []
         ]
     },
     {
