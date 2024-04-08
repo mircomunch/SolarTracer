@@ -1153,15 +1153,12 @@
                 "t": "nempty"
             },
             {
-                "t": "empty"
-            },
-            {
                 "t": "null"
             }
         ],
         "checkall": "true",
         "repair": false,
-        "outputs": 3,
+        "outputs": 2,
         "x": 430,
         "y": 620,
         "wires": [
@@ -1170,9 +1167,6 @@
             ],
             [
                 "104cce666467579d"
-            ],
-            [
-                "198fe26447f360a5"
             ]
         ]
     },
@@ -1200,7 +1194,7 @@
         "type": "function",
         "z": "66a4ff9e.6ffac",
         "name": "notification message",
-        "func": "msg.topic = \"No ID selected!\"\nmsg.payload = \"Please select an ID to send the command\"\nreturn msg;",
+        "func": "msg.topic = \"No ID selected!\";\nmsg.payload = \"Please select an ID to send the command\";\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1211,8 +1205,7 @@
         "y": 640,
         "wires": [
             [
-                "67fa5535314a69ca",
-                "198fe26447f360a5"
+                "67fa5535314a69ca"
             ]
         ]
     },
@@ -1238,23 +1231,6 @@
         "wires": [
             []
         ]
-    },
-    {
-        "id": "198fe26447f360a5",
-        "type": "debug",
-        "z": "66a4ff9e.6ffac",
-        "name": "debug 1",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 800,
-        "y": 680,
-        "wires": []
     },
     {
         "id": "62b6322a.94451c",
