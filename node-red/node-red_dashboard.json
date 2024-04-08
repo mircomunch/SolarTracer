@@ -710,10 +710,10 @@
         "name": "",
         "rules": [
             {
-                "t": "set",
-                "p": "topic",
+                "t": "move",
+                "p": "payload",
                 "pt": "msg",
-                "to": "payload",
+                "to": "topic",
                 "tot": "msg"
             }
         ],
@@ -722,7 +722,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 650,
+        "x": 670,
         "y": 360,
         "wires": [
             [
