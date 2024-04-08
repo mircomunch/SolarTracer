@@ -1233,22 +1233,6 @@
         "wires": []
     },
     {
-        "id": "4ed79b28090616db",
-        "type": "link in",
-        "z": "66a4ff9e.6ffac",
-        "name": "update charts",
-        "links": [
-            "8fbd4d0bfa30cdff"
-        ],
-        "x": 75,
-        "y": 740,
-        "wires": [
-            [
-                "b1bb71b72d9fa9da"
-            ]
-        ]
-    },
-    {
         "id": "109046a88dc97557",
         "type": "sqlite",
         "z": "66a4ff9e.6ffac",
@@ -1297,6 +1281,25 @@
         "wires": [
             [
                 "109046a88dc97557"
+            ]
+        ]
+    },
+    {
+        "id": "62145079fbf8b7f2",
+        "type": "inject",
+        "z": "66a4ff9e.6ffac",
+        "name": "",
+        "props": [],
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 50,
+        "y": 740,
+        "wires": [
+            [
+                "b1bb71b72d9fa9da"
             ]
         ]
     },
