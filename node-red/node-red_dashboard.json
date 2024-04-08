@@ -468,8 +468,8 @@
         "correl": "",
         "expiry": "",
         "broker": "b2797592163729b8",
-        "x": 570,
-        "y": 120,
+        "x": 490,
+        "y": 160,
         "wires": []
     },
     {
@@ -490,8 +490,8 @@
         "once": true,
         "onceDelay": 0.1,
         "topic": "",
-        "x": 230,
-        "y": 140,
+        "x": 150,
+        "y": 160,
         "wires": [
             [
                 "c2b4b43c.194ce8"
@@ -510,8 +510,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 420,
-        "y": 140,
+        "x": 320,
+        "y": 160,
         "wires": [
             [
                 "bcdaebed.40b698"
@@ -535,8 +535,8 @@
         "once": true,
         "onceDelay": "1",
         "topic": "",
-        "x": 230,
-        "y": 100,
+        "x": 150,
+        "y": 120,
         "wires": [
             [
                 "c2b4b43c.194ce8"
@@ -556,8 +556,8 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 230,
-        "y": 320,
+        "x": 130,
+        "y": 260,
         "wires": [
             [
                 "8043130f.d312",
@@ -577,8 +577,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 450,
-        "y": 340,
+        "x": 330,
+        "y": 280,
         "wires": [
             [
                 "152e7e68.390582",
@@ -599,8 +599,8 @@
         "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
-        "x": 450,
-        "y": 300,
+        "x": 330,
+        "y": 240,
         "wires": []
     },
     {
@@ -616,8 +616,8 @@
         "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
-        "x": 610,
-        "y": 340,
+        "x": 490,
+        "y": 280,
         "wires": []
     },
     {
@@ -628,8 +628,8 @@
         "sqlquery": "msg.topic",
         "sql": "",
         "name": "insert",
-        "x": 430,
-        "y": 380,
+        "x": 810,
+        "y": 360,
         "wires": [
             []
         ]
@@ -642,8 +642,8 @@
         "sqlquery": "fixed",
         "sql": "CREATE TABLE IF NOT EXISTS readings (device_id TEXT, data_id TEXT, timestamp INTEGER, val REAL, unit TEXT);",
         "name": "create table readings",
-        "x": 460,
-        "y": 40,
+        "x": 340,
+        "y": 60,
         "wires": [
             []
         ]
@@ -659,8 +659,8 @@
         "once": true,
         "onceDelay": 0.1,
         "topic": "",
-        "x": 220,
-        "y": 40,
+        "x": 140,
+        "y": 60,
         "wires": [
             [
                 "8284e44e8c1628da"
@@ -678,11 +678,12 @@
         "arraySpltType": "len",
         "stream": false,
         "addname": "",
-        "x": 610,
-        "y": 440,
+        "x": 490,
+        "y": 320,
         "wires": [
             [
-                "a1dc1b3202e70e78"
+                "a1dc1b3202e70e78",
+                "18cf775846e1d345"
             ]
         ]
     },
@@ -699,9 +700,36 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 770,
-        "y": 440,
+        "x": 650,
+        "y": 320,
         "wires": []
+    },
+    {
+        "id": "18cf775846e1d345",
+        "type": "change",
+        "z": "66a4ff9e.6ffac",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 650,
+        "y": 360,
+        "wires": [
+            [
+                "6d1ade5a.b6516"
+            ]
+        ]
     },
     {
         "id": "62b6322a.94451c",
