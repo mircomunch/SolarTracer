@@ -468,20 +468,9 @@
         "type": "ui_group",
         "name": "select id",
         "tab": "fe8897304a518907",
-        "order": 2,
+        "order": 3,
         "disp": false,
         "width": "6",
-        "collapse": false,
-        "className": ""
-    },
-    {
-        "id": "b1ebb2f6142bb52b",
-        "type": "ui_group",
-        "name": "Update datetime",
-        "tab": "fe8897304a518907",
-        "order": 1,
-        "disp": false,
-        "width": "4",
         "collapse": false,
         "className": ""
     },
@@ -490,11 +479,52 @@
         "type": "ui_group",
         "name": "commands",
         "tab": "fe8897304a518907",
-        "order": 3,
+        "order": 2,
         "disp": false,
-        "width": "5",
+        "width": "6",
         "collapse": false,
         "className": ""
+    },
+    {
+        "id": "7c92c8983045d68c",
+        "type": "ui_group",
+        "name": "Voltage",
+        "tab": "fe8897304a518907",
+        "order": 4,
+        "disp": true,
+        "width": "16",
+        "collapse": true,
+        "className": ""
+    },
+    {
+        "id": "ca50ecf36f757cd4",
+        "type": "ui_spacer",
+        "z": "66a4ff9e.6ffac",
+        "name": "spacer",
+        "group": "8de535f3426c7c74",
+        "order": 1,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "6321a7aa8454a5d0",
+        "type": "ui_spacer",
+        "z": "66a4ff9e.6ffac",
+        "name": "spacer",
+        "group": "8de535f3426c7c74",
+        "order": 3,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "98198711f2ed5bba",
+        "type": "ui_spacer",
+        "z": "66a4ff9e.6ffac",
+        "name": "spacer",
+        "group": "8de535f3426c7c74",
+        "order": 5,
+        "width": "1",
+        "height": "1"
     },
     {
         "id": "bcdaebed.40b698",
@@ -603,7 +633,8 @@
         "wires": [
             [
                 "8043130f.d312",
-                "9baf41c8.c185f"
+                "9baf41c8.c185f",
+                "653de9f45b8d168c"
             ]
         ]
     },
@@ -612,7 +643,7 @@
         "type": "function",
         "z": "66a4ff9e.6ffac",
         "name": "msg parser",
-        "func": "var insertions = [];\nvar id = msg.payload.id;\nvar location = msg.payload.location;\nvar readings = msg.payload.readings;\n\nvar start_query = \"INSERT INTO readings VALUES (\\\"\"+ id + \"\\\", \\\"\";\nfor (let r = 0; r < readings.length; r++) {\n        const read = readings[r];\n        const data = read.data;\n        var mid_query = start_query + read.data_id + \"\\\", \";\n        for (let d = 0; d < data.length; d++) {\n                const element = data[d];\n                var end_query = mid_query\n                + element.timestamp + \", \"\n                + element.val + \", \\\"\"\n                + read.unit + \"\\\");\";\n                insertions.push(end_query);\n        }\n}\n\nmsg = {\n        id: id,\n        location: location,\n        readings: readings,\n        payload: insertions\n};\n\nreturn msg;",
+        "func": "var insertions = [];\nvar id = msg.payload.id;\nvar location = msg.payload.location;\nvar readings = msg.payload.readings;\n\nvar start_query = \"INSERT INTO readings VALUES (\\\"\"+ id + \"\\\", \\\"\";\nfor (let r = 0; r < readings.length; r++) {\n        const read = readings[r];\n        const data = read.data;\n        var mid_query = start_query + read.data_id + \"\\\", \";\n        for (let d = 0; d < data.length; d++) {\n                const element = data[d];\n                var end_query = mid_query\n                + element.timestamp + \", \"\n                + element.val + \", \\\"\"\n                + read.unit + \"\\\");\";\n                insertions.push(end_query);\n        }\n}\n\nmsg.payload = insertions;\n\nreturn msg;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
@@ -673,9 +704,7 @@
         "x": 830,
         "y": 320,
         "wires": [
-            [
-                "8fbd4d0bfa30cdff"
-            ]
+            []
         ]
     },
     {
@@ -708,7 +737,8 @@
         "wires": [
             [
                 "8284e44e8c1628da",
-                "40a309aa804128fa"
+                "40a309aa804128fa",
+                "98ba410bba2d8670"
             ]
         ]
     },
@@ -800,11 +830,11 @@
         "type": "ui_dropdown",
         "z": "66a4ff9e.6ffac",
         "name": "",
-        "label": "LLAB ID:",
+        "label": "LLab ID:",
         "tooltip": "",
         "place": "Select option",
         "group": "788b23d842bc47a5",
-        "order": 0,
+        "order": 1,
         "width": 0,
         "height": 0,
         "passthru": true,
@@ -860,7 +890,9 @@
         "x": 800,
         "y": 400,
         "wires": [
-            []
+            [
+                "29080e81bf1c028f"
+            ]
         ]
     },
     {
@@ -952,8 +984,8 @@
         "type": "ui_button",
         "z": "66a4ff9e.6ffac",
         "name": "",
-        "group": "b1ebb2f6142bb52b",
-        "order": 1,
+        "group": "8de535f3426c7c74",
+        "order": 2,
         "width": 4,
         "height": 1,
         "passthru": false,
@@ -984,7 +1016,7 @@
         "label": "Run",
         "tooltip": "",
         "group": "8de535f3426c7c74",
-        "order": 3,
+        "order": 4,
         "width": 2,
         "height": 1,
         "passthru": true,
@@ -1036,7 +1068,7 @@
         "label": "Load",
         "tooltip": "",
         "group": "8de535f3426c7c74",
-        "order": 5,
+        "order": 6,
         "width": 2,
         "height": 1,
         "passthru": true,
@@ -1220,19 +1252,6 @@
         ]
     },
     {
-        "id": "8fbd4d0bfa30cdff",
-        "type": "link out",
-        "z": "66a4ff9e.6ffac",
-        "name": "new data inserted",
-        "mode": "link",
-        "links": [
-            "4ed79b28090616db"
-        ],
-        "x": 915,
-        "y": 320,
-        "wires": []
-    },
-    {
         "id": "109046a88dc97557",
         "type": "sqlite",
         "z": "66a4ff9e.6ffac",
@@ -1291,11 +1310,11 @@
         "type": "ui_chart",
         "z": "66a4ff9e.6ffac",
         "name": "",
-        "group": "d73b7901ecb735dc",
-        "order": 2,
+        "group": "7c92c8983045d68c",
+        "order": 1,
         "width": 0,
         "height": 0,
-        "label": "chart",
+        "label": "",
         "chartType": "line",
         "legend": "false",
         "xformat": "HH:mm:ss",
@@ -1346,6 +1365,110 @@
         "x": 600,
         "y": 740,
         "wires": []
+    },
+    {
+        "id": "98ba410bba2d8670",
+        "type": "sqlite",
+        "z": "66a4ff9e.6ffac",
+        "mydb": "c34d6f8a.52a95",
+        "sqlquery": "fixed",
+        "sql": "CREATE TABLE IF NOT EXISTS info (device_id TEXT UNIQUE, location TEXT);",
+        "name": "create table info",
+        "x": 320,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "653de9f45b8d168c",
+        "type": "function",
+        "z": "66a4ff9e.6ffac",
+        "name": "msg parser",
+        "func": "var id = msg.payload.id;\nvar location = msg.payload.location;\n\nmsg.topic = \"INSERT OR IGNORE INTO info VALUES (\\\"\"+ id + \"\\\", \\\"\" + location + \"\\\");\";\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 340,
+        "wires": [
+            [
+                "ef5664947996b133"
+            ]
+        ]
+    },
+    {
+        "id": "ef5664947996b133",
+        "type": "sqlite",
+        "z": "66a4ff9e.6ffac",
+        "mydb": "c34d6f8a.52a95",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "insert",
+        "x": 490,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "85be3f954c1e3736",
+        "type": "ui_text",
+        "z": "66a4ff9e.6ffac",
+        "group": "788b23d842bc47a5",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Location:",
+        "format": "{{msg.payload[0].location}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 1040,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "29080e81bf1c028f",
+        "type": "template",
+        "z": "66a4ff9e.6ffac",
+        "name": "",
+        "field": "topic",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "SELECT\n    location\nFROM\n    info\nWHERE\n    device_id=\"{{global.selectedID}}\";",
+        "output": "str",
+        "x": 760,
+        "y": 460,
+        "wires": [
+            [
+                "0c1295d5e37cdc30"
+            ]
+        ]
+    },
+    {
+        "id": "0c1295d5e37cdc30",
+        "type": "sqlite",
+        "z": "66a4ff9e.6ffac",
+        "mydb": "c34d6f8a.52a95",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "select *",
+        "x": 900,
+        "y": 460,
+        "wires": [
+            [
+                "85be3f954c1e3736"
+            ]
+        ]
     },
     {
         "id": "62b6322a.94451c",
