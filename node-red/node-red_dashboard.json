@@ -570,7 +570,7 @@
         "type": "function",
         "z": "66a4ff9e.6ffac",
         "name": "msg parser",
-        "func": "var query = [];\nvar id = msg.payload.id;\nvar location = msg.payload.location;\n\nmsg = {\n        id: id,\n        location: location,\n};\n\nreturn msg;",
+        "func": "var query = [];\nvar id = msg.payload.id;\nvar location = msg.payload.location;\nvar readings = msg.payload.readings;\n\nmsg = {\n        id: id,\n        location: location,\n        readings: readings\n};\n\nreturn msg;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
@@ -632,42 +632,6 @@
         "wires": [
             []
         ]
-    },
-    {
-        "id": "262373ca39f16d3d",
-        "type": "function",
-        "z": "66a4ff9e.6ffac",
-        "name": "function 2",
-        "func": "var id = msg.payload.id;\nvar location = msg.payload.loc;\n\nmsg.payload = {\n    id:id,\n    location:location\n}\n\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 440,
-        "y": 460,
-        "wires": [
-            [
-                "df0efa362d8641ef"
-            ]
-        ]
-    },
-    {
-        "id": "df0efa362d8641ef",
-        "type": "debug",
-        "z": "66a4ff9e.6ffac",
-        "name": "debug 1",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 620,
-        "y": 460,
-        "wires": []
     },
     {
         "id": "62b6322a.94451c",
