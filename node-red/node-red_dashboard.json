@@ -691,7 +691,7 @@
         "type": "debug",
         "z": "66a4ff9e.6ffac",
         "name": "",
-        "active": true,
+        "active": false,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
@@ -699,8 +699,8 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 790,
-        "y": 380,
+        "x": 850,
+        "y": 280,
         "wires": []
     },
     {
