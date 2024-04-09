@@ -1,43 +1,31 @@
+#include <string>
+#include <vector>
 #include <header.hpp>
 #include <setup.hpp>
 #include <solarModbus.hpp>
 #include "./sensors/DHT_temphum/DHT_temphum.hpp"
 #include "./MQTT/MQTT.hpp"
 
+MQTT mqtt;
 SolarModbus TRACER;
+
+TimerHandle_t dataTimer;
+TimerHandle_t loadTimer;
+// TimerHandle_t publishTimer;
+// TimerHandle_t readTracerTimer;
 
 #ifdef SENS_TEMPHUM
   DHTsensor dht;
+  // TimerHandle_t readTempHumTimer;
 #endif
 
-MQTT mqtt;
-TimerHandle_t dataTimer;
-TimerHandle_t loadTimer;
-
 bool acq = false;
-struct flags {
-  bool readTracer = false;
-  bool readDht = false;
-  bool publishMqtt = false;
-} intFlags;
-
-struct singleData {
-  int timestamp;
-  float val;
-};
-
-struct dataFormat {
-  String data_id;
-  String unit;
-  singleData data [10]; //define a maximum n of data transmitted -> to be improved 
-};
-
-dataFormat readings [READINGS_N];
-
-struct temphumData {
-  dataFormat temperature;
-  dataFormat humidity;
-} temphumReadings;
+bool control = false;
+// struct flags {
+//   bool readTracer = false;
+//   bool readDht = false;
+//   bool publishMqtt = false;
+// } interrFlags;
 
 struct SensorsData {
   float temperature;
@@ -79,24 +67,97 @@ struct SolarSettings {
 
 void readTracer();
 void setupTracer();
-void readTempHum();
+#ifdef SENS_TEMPHUM
+  void readTempHum();
+#endif
 String composeMessage();
+
+struct Reading
+{
+  long long timestamp;
+  double val;
+};
+
+struct SensorData
+{
+  std::string data_id;
+  std::string unit;
+  std::vector<Reading> data;
+
+  // Method to clear all data from readings
+  void clearData()
+  {
+      data.clear();
+  }
+};
+
+struct DataRecord
+{
+  std::string id;
+  std::string location;
+  std::vector<SensorData> readings;
+
+  // Method to calculate required capacity for JSON document
+  size_t calculateCapacity() const
+  {
+    size_t capacity = JSON_OBJECT_SIZE(2); // for "id" and "location"
+    for (const auto &reading : readings)
+    {
+      capacity += JSON_OBJECT_SIZE(2) + reading.data.size() * (JSON_OBJECT_SIZE(2) + JSON_ARRAY_SIZE(2)); // for "data_id", "unit" and each data entry
+    }
+    return capacity;
+  }
+
+  // Method to convert DataRecord to JSON
+  String toJson() const
+  {
+    const size_t capacity = calculateCapacity();
+    DynamicJsonDocument doc(capacity);
+
+    doc["id"] = id;
+    doc["location"] = location;
+
+    JsonArray readingsArray = doc.createNestedArray("readings");
+    for (const auto &reading : readings)
+    {
+      JsonObject sensorData = readingsArray.createNestedObject();
+      sensorData["data_id"] = reading.data_id;
+      sensorData["unit"] = reading.unit;
+
+      JsonArray dataArray = sensorData.createNestedArray("data");
+      for (const auto &entry : reading.data)
+      {
+        JsonObject dataEntry = dataArray.createNestedObject();
+        dataEntry["timestamp"] = entry.timestamp;
+        dataEntry["val"] = entry.val;
+      }
+    }
+
+    String jsonString;
+    serializeJson(doc, jsonString);
+    return jsonString;
+  }
+
+  // Method to clear all data from readings
+  void clearData()
+  {
+    for (auto &reading : readings)
+    {
+      reading.data.clear();
+    }
+  }
+};
+
+DataRecord record;
+SensorData env_temperature;
+// SensorData env_...
 
 void dataPublishCallback() {
   acq = true;
 }
 
 void loadControlCallback() {
-  uint8_t result;
-  if (mqtt.cmdLoad) {
-    // LOAD_ON
-    result = TRACER.writeSingleCoil(TracerSettings.loadOn, MODBUS_ADDRESS_LOAD_MANUAL_ONOFF);
-  } else {
-    // LOAD_OFF
-    result = TRACER.writeSingleCoil(TracerSettings.loadOff, MODBUS_ADDRESS_LOAD_MANUAL_ONOFF);
-  }
-  TRACER.exceptionHandler(result, "Write", "MODBUS_ADDRESS_LOAD_MANUAL_ONOFF");
-  // xTimerStart(loadTimer, 0);
+  control = true;
 }
 
 void setup() {
@@ -126,7 +187,7 @@ void setup() {
   #endif
 
   /* SETUP TRACER */
-  setupTracer();
+  // setupTracer();
 
   #ifdef DEBUG
     SERIAL_DEBUG.println("---------------");
@@ -134,7 +195,7 @@ void setup() {
 
   /* START TIMERS */
   xTimerStart(dataTimer, 0);
-  xTimerStart(loadTimer, 0);
+  // xTimerStart(loadTimer, 0); //FIXX: Causes error core dump if not connected because load write will take too much
 }
 
 void loop() {
@@ -145,8 +206,10 @@ void loop() {
   if(acq) {
     acq = false;
     if (mqtt.datetimeSetted && mqtt.cmdRun) {
-      readTracer();
-      readTempHum();
+      // readTracer();
+      #ifdef SENS_TEMPHUM
+        readTempHum();
+      #endif
       String message = composeMessage();
       // #ifdef DEBUG
       //   SERIAL_DEBUG.println(message);
@@ -164,6 +227,18 @@ void loop() {
       }
     }
     xTimerStart(dataTimer, 0);
+  }
+  if (control) {
+    uint8_t result;
+    if (mqtt.cmdLoad) {
+      // LOAD_ON
+      result = TRACER.writeSingleCoil(TracerSettings.loadOn, MODBUS_ADDRESS_LOAD_MANUAL_ONOFF);
+    } else {
+      // LOAD_OFF
+      result = TRACER.writeSingleCoil(TracerSettings.loadOff, MODBUS_ADDRESS_LOAD_MANUAL_ONOFF);
+    }
+    TRACER.exceptionHandler(result, "Write", "MODBUS_ADDRESS_LOAD_MANUAL_ONOFF");
+    xTimerStart(loadTimer, 0);
   }
 }
 
@@ -339,86 +414,33 @@ void readTracer(){
   // }
 }
 
-void clearData() {
-  //delete all prev timestamp-val
-}
-
 void setupReadings(){
-  temphumReadings.temperature.data_id = TEMP_ID;
-  temphumReadings.temperature.unit = TEMP_UNIT;
-  temphumReadings.humidity.data_id = HUM_ID;
-  temphumReadings.humidity.unit = HUM_UNIT;
+  record.id = BOARD_ID;
+  record.location = LOCATION;
+
+  #ifdef SENS_TEMPHUM
+    env_temperature.data_id = TEMP_ID;
+    env_temperature.unit = TEMP_UNIT;
+  #endif
 }
 
 void readTempHum() {
-  #ifdef SENS_TEMPHUM
-    // SensorsReadings.temperature = dht.readTemperature();
-    // SensorsReadings.humidity = dht.readHumidity();
-
-    // singleData data;
-    // data.timestamp = (int)now();
-    // data.val = dht.readTemperature();
-    // temphumReadings.temperature.data[0] = data;
-    // data.timestamp = (int)now();
-    // data.val = dht.readHumidity();
-    // temphumReadings.humidity.data.append(data);
-#endif
+  Reading actualData = {(int)now(), (double)random()};
+  // Reading actualData = {(int)now(), dht.readTemperature()};
+  env_temperature.data.push_back(actualData);
 }
 
 String composeMessage() {
-  String message;
-  // StaticJsonDocument<200> obj;
-  // obj["id"] = BOARD_ID;
-  // obj["location"] = LOCATION;
-  // obj["readings"] = readingsQueue;
-  // serializeJson(obj, message);
-
-  message = "{\"id\":\"";
-  message += BOARD_ID;
-  message += "\",";
-  message += "\"location\":\"";
-  message += LOCATION;
-  message += "\",";
-  message += "\"timestamp\":";
-  message += (int)now();
-  message += "000,";
-  message += "\"sensors\":[";
-  message += "{\"battery\":{";
-  message += "\"voltage\":";
-  message += TracerReadings.batteryVoltage;
-  message += ",\"current\":";
-  message += TracerReadings.batteryCurrent;
-  message += ",\"soc\":";
-  message += TracerReadings.batterySOC;
-  message += "}},";
-  message += "{\"load\":{";
-  message += "\"voltage\":";
-  message += TracerReadings.loadVoltage;
-  message += ",\"current\":";
-  message += TracerReadings.loadCurrent;
-  // message += ",\"power\":";
-  // message += TracerReadings.loadPower;
-  message += "}},";
-  message += "{\"pv\":{";
-  message += "\"voltage\":";
-  message += TracerReadings.pvVoltage;
-  message += ",\"current\":";
-  message += TracerReadings.pvCurrent;
-  // #ifdef TEMPERATURE
-    // message += "}},";
-    // message += "{\"dht\":{";
-    // message += "\"temperature\":";
-    // message += SensorsReadings.temperature;
-    // message += ",\"humidity\":";
-    // message += SensorsReadings.humidity;
-  // #endif
-  message += "}}]";
-
-  // message += "],";
-  // message += "\"controller\":{\"err\":";
-  // message += error;
-  // message += "}";
-  message += "}";
+  #ifdef SENS_TEMPHUM
+    record.readings.push_back(env_temperature);
+    env_temperature.clearData();
+  #endif
+  // Convert DataRecord to JSON string
+  String message = record.toJson();
+  #ifdef DEBUG
+    SERIAL_DEBUG.println(message);
+  #endif
+  record.clearData();
 
   return message;
 }

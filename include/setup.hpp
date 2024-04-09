@@ -9,7 +9,7 @@
 #endif
 
 // BOARD NAME
-#define BOARD_ID "LL-1.US-1"
+#define BOARD_ID "LL-HOME.US-1"
 #define LOCATION "IT-Parma-Unipr"
 
 // Sensors activated
