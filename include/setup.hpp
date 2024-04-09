@@ -9,7 +9,6 @@
 #endif
 
 // BOARD NAME
-#define BOARD_NAME "digilent"
 #define BOARD_ID "LL-1.US-1"
 #define LOCATION "IT-Parma-Unipr"
 
@@ -34,8 +33,8 @@
 // #define MQTT_PORT 1883
 #define MQTT_HOST "350fd0725fa14a069e04d387121e69f7.s2.eu.hivemq.cloud"
 #define MQTT_PORT 8883
-#define MQTT_TOPIC "unipr/lab/"
-#define MQTT_PUBLISH_TOPIC MQTT_TOPIC BOARD_NAME
+#define MQTT_TOPIC "living-labs/"
+#define MQTT_PUBLISH_TOPIC MQTT_TOPIC "data"
 #define MQTT_DATETIME_TOPIC MQTT_TOPIC "datetime"
 #define MQTT_CMD_TOPIC MQTT_TOPIC "cmd"
 #define MQTT_USER "admin"

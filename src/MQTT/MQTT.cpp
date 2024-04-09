@@ -20,7 +20,7 @@ void MQTT::reconnect()
     while (!this->client.connected())
     {
         Serial.print("Attempting MQTT connection…");
-        String clientId = BOARD_NAME;
+        String clientId = BOARD_ID;
         clientId += String(random(0xffff), HEX); // Create a random client ID
         // Attempt to connect
         #if defined(MQTT_USER) && defined(MQTT_PASSWORD)
