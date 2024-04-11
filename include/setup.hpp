@@ -9,8 +9,8 @@
 #endif
 
 // BOARD NAME
-#define BOARD_ID "LL-HOME.US-1"
-#define LOCATION "IT-Parma-Unipr"
+#define BOARD_ID "LL-1"
+#define LOCATION "ITA-Parma-Unipr"
 
 // Sensors activated
 #define SENS_TEMPHUM
@@ -40,9 +40,10 @@
 #define MQTT_USER "admin"
 #define MQTT_PASSWORD "Admin123"
 #define CERT // define if certificate needed for broker connection
+#define MQTT_PUBLISH_MESSAGE_SIZE 1024
 
 // Timer configurations
-#define DATA_TIMER 2000
+#define DATA_TIMER 10000
 #define LOAD_TIMER 1000
 
 //SOLAR_TIMER

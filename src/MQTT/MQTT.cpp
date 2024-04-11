@@ -10,6 +10,7 @@ MQTT::MQTT() {
     using std::placeholders::_2;
     using std::placeholders::_3;
     this->client.setCallback(std::bind(&MQTT::subscribeCallback, this, _1, _2, _3));
+    this->client.setBufferSize(MQTT_PUBLISH_MESSAGE_SIZE);
     this->startup = true;
     this->datetimeSetted = false;
 }
@@ -64,7 +65,7 @@ void MQTT::setDatetime(String datetime)
 {
     uint64_t datetimeD = datetime.toDouble();
     if (datetimeD > 0){
-        setTime(datetimeD / 1000);
+        setTime(datetimeD);
         // this->client.unsubscribe(MQTT_DATETIME_TOPIC);
     }
     this->datetimeSetted = true;
@@ -72,15 +73,19 @@ void MQTT::setDatetime(String datetime)
 
 void MQTT::subscribeCallback(char *topic, byte *payload, unsigned int length)
 {
-    Serial.print("Message arrived [");
-    Serial.print(topic);
-    Serial.print("]: ");
+    #ifdef DEBUG
+        SERIAL_DEBUG.print("Message arrived [");
+        SERIAL_DEBUG.print(topic);
+        SERIAL_DEBUG.print("]: ");
+    #endif
     String payloadStr;
     for (int i = 0; i < length; i++)
     {
         payloadStr += (char)payload[i];
     }
-    Serial.println(payloadStr);
+    #ifdef DEBUG
+        SERIAL_DEBUG.println(payloadStr);
+    #endif
 
     parseMessagge(topic, payloadStr.c_str());
 }
@@ -95,8 +100,21 @@ void MQTT::parseMessagge(char *topic, const char *payloadStr)
     {
         DynamicJsonDocument doc(1024);
         deserializeJson(doc, payloadStr);
-
-        this->cmdRun = doc["run"];
-        this->cmdLoad = doc["load"];
+        // JsonArray array = doc.as<JsonArray>();
+        // for(JsonVariant v : array) {
+        //     DynamicJsonDocument elem(1024);
+        //     deserializeJson(elem, v.as<String>());
+        //     if (strcmp(elem["id"], BOARD_ID) == 0) {
+        //         this->cmdRun = elem["run"];
+        //         this->cmdLoad = elem["load"];
+        //     }
+        //     elem.clear();
+        // }
+        // OLD VERSION
+        if (strcmp(doc["id"], BOARD_ID) == 0) {
+            this->cmdRun = doc["run"];
+            this->cmdLoad = doc["load"];
+        }
+        doc.clear();
     }
 }

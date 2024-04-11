@@ -27,11 +27,6 @@ bool control = false;
 //   bool publishMqtt = false;
 // } interrFlags;
 
-struct SensorsData {
-  float temperature;
-  float humidity;
-} SensorsReadings;
-
 struct SolarData {
   uint16_t batteryType;
   uint16_t batteryCapacity;
@@ -65,92 +60,11 @@ struct SolarSettings {
   uint16_t loadOff = 0x0000;
 } TracerSettings;
 
-void readTracer();
+void readTracer(JsonArray *readArray);
 void setupTracer();
 #ifdef SENS_TEMPHUM
-  void readTempHum();
+  void readTempHum(JsonArray *readArray);
 #endif
-String composeMessage();
-
-struct Reading
-{
-  long long timestamp;
-  double val;
-};
-
-struct SensorData
-{
-  std::string data_id;
-  std::string unit;
-  std::vector<Reading> data;
-
-  // Method to clear all data from readings
-  void clearData()
-  {
-      data.clear();
-  }
-};
-
-struct DataRecord
-{
-  std::string id;
-  std::string location;
-  std::vector<SensorData> readings;
-
-  // Method to calculate required capacity for JSON document
-  size_t calculateCapacity() const
-  {
-    size_t capacity = JSON_OBJECT_SIZE(2); // for "id" and "location"
-    for (const auto &reading : readings)
-    {
-      capacity += JSON_OBJECT_SIZE(2) + reading.data.size() * (JSON_OBJECT_SIZE(2) + JSON_ARRAY_SIZE(2)); // for "data_id", "unit" and each data entry
-    }
-    return capacity;
-  }
-
-  // Method to convert DataRecord to JSON
-  String toJson() const
-  {
-    const size_t capacity = calculateCapacity();
-    DynamicJsonDocument doc(capacity);
-
-    doc["id"] = id;
-    doc["location"] = location;
-
-    JsonArray readingsArray = doc.createNestedArray("readings");
-    for (const auto &reading : readings)
-    {
-      JsonObject sensorData = readingsArray.createNestedObject();
-      sensorData["data_id"] = reading.data_id;
-      sensorData["unit"] = reading.unit;
-
-      JsonArray dataArray = sensorData.createNestedArray("data");
-      for (const auto &entry : reading.data)
-      {
-        JsonObject dataEntry = dataArray.createNestedObject();
-        dataEntry["timestamp"] = entry.timestamp;
-        dataEntry["val"] = entry.val;
-      }
-    }
-
-    String jsonString;
-    serializeJson(doc, jsonString);
-    return jsonString;
-  }
-
-  // Method to clear all data from readings
-  void clearData()
-  {
-    for (auto &reading : readings)
-    {
-      reading.data.clear();
-    }
-  }
-};
-
-DataRecord record;
-SensorData env_temperature;
-// SensorData env_...
 
 void dataPublishCallback() {
   acq = true;
@@ -187,7 +101,7 @@ void setup() {
   #endif
 
   /* SETUP TRACER */
-  // setupTracer();
+  setupTracer();
 
   #ifdef DEBUG
     SERIAL_DEBUG.println("---------------");
@@ -195,7 +109,7 @@ void setup() {
 
   /* START TIMERS */
   xTimerStart(dataTimer, 0);
-  // xTimerStart(loadTimer, 0); //FIXX: Causes error core dump if not connected because load write will take too much
+  xTimerStart(loadTimer, 0);
 }
 
 void loop() {
@@ -205,16 +119,21 @@ void loop() {
 
   if(acq) {
     acq = false;
+    DynamicJsonDocument doc(2048);
+    doc["id"] = BOARD_ID;
+    doc["location"] = LOCATION;
     if (mqtt.datetimeSetted && mqtt.cmdRun) {
-      // readTracer();
+      JsonArray readings = doc.createNestedArray("readings");
+      readTracer(&readings);
+
       #ifdef SENS_TEMPHUM
-        readTempHum();
+        readTempHum(&readings);
       #endif
-      String message = composeMessage();
-      // #ifdef DEBUG
-      //   SERIAL_DEBUG.println(message);
-      //   SERIAL_DEBUG.printf("TEMP: %.2f°C | HUM: %.2f%\n", SensorsReadings.temperature, SensorsReadings.humidity);
-      // #endif
+
+      String message;
+      serializeJson(doc, message);
+      SERIAL_DEBUG.println(message);
+
       bool pubStatus = mqtt.publishMessage(MQTT_PUBLISH_TOPIC, message, false);
       if (!pubStatus) {
         #ifdef DEBUG
@@ -309,7 +228,7 @@ void setupTracer() {
   // }
 }
 
-void readTracer(){
+void readTracer(JsonArray *readArray) {
   uint8_t result;
 
   // READ VALUES - REAL-TIME
@@ -326,7 +245,15 @@ void readTracer(){
   result = TRACER.readSingleInputRegisters(MODBUS_ADDRESS_BATTERY_CURRENT_VOLTAGE, &TracerReadings.batteryVoltage, true);
   if (result != 0) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_BATTERY_CURRENT_VOLTAGE");
-  } else {
+  }
+  else {
+    JsonObject data = readArray->createNestedObject();
+    data["data_id"] = BATT_V_ID;
+    data["unit"] = BATT_V_UNIT;
+    JsonArray data = data.createNestedArray("data");
+    JsonObject singleData = data.createNestedObject();
+    singleData["timestamp"] = (int)now();
+    singleData["val"] = TracerReadings.batteryVoltage;
     #ifdef DEBUG
       SERIAL_DEBUG.printf("BATTERY_VOLTAGE: %f\n", TracerReadings.batteryVoltage);
     #endif
@@ -335,7 +262,15 @@ void readTracer(){
   result = TRACER.readSingleInputRegisters(MODBUS_ADDRESS_BATTERY_CHARGE_CURRENT, &TracerReadings.batteryCurrent, true);
   if (result != 0) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_BATTERY_CHARGE_CURRENT");
-  } else {
+  }
+  else {
+    JsonObject data = readArray->createNestedObject();
+    data["data_id"] = BATT_C_ID;
+    data["unit"] = BATT_C_UNIT;
+    JsonArray data = data.createNestedArray("data");
+    JsonObject singleData = data.createNestedObject();
+    singleData["timestamp"] = (int)now();
+    singleData["val"] = TracerReadings.batteryCurrent;
     #ifdef DEBUG
       SERIAL_DEBUG.printf("BATTERY_CURRENT: %f\n", TracerReadings.batteryCurrent);
     #endif
@@ -344,7 +279,15 @@ void readTracer(){
   result = TRACER.readSingleInputRegisters(MODBUS_ADDRESS_BATTERY_SOC, &TracerReadings.batterySOC, false);
   if (result != 0) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_BATTERY_SOC");
-  } else {
+  }
+  else {
+    JsonObject data = readArray->createNestedObject();
+    data["data_id"] = BATT_SOC_ID;
+    data["unit"] = BATT_SOC_UNIT;
+    JsonArray data = data.createNestedArray("data");
+    JsonObject singleData = data.createNestedObject();
+    singleData["timestamp"] = (int)now();
+    singleData["val"] = TracerReadings.batterySOC;
     #ifdef DEBUG
       SERIAL_DEBUG.printf("BATTERY_SOC: %f\n", TracerReadings.batterySOC);
     #endif
@@ -353,7 +296,8 @@ void readTracer(){
   result = TRACER.readSingleInputRegisters(MODBUS_ADDRESS_LOAD_VOLTAGE, &TracerReadings.loadVoltage, true);
   if (result != 0) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_LOAD_VOLTAGE");
-  } else {
+  }
+  else {
     #ifdef DEBUG
       SERIAL_DEBUG.printf("LOAD_VOLTAGE: %f\n", TracerReadings.loadVoltage);
     #endif
@@ -362,7 +306,8 @@ void readTracer(){
   result = TRACER.readSingleInputRegisters(MODBUS_ADDRESS_LOAD_CURRENT, &TracerReadings.loadCurrent, true);
   if (result != 0) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_LOAD_CURRENT");
-  } else {
+  }
+  else {
     #ifdef DEBUG
       SERIAL_DEBUG.printf("LOAD_CURRENT: %f\n", TracerReadings.loadCurrent);
     #endif
@@ -380,7 +325,8 @@ void readTracer(){
   result = TRACER.readSingleInputRegisters(MODBUS_ADDRESS_PV_VOLTAGE, &TracerReadings.pvVoltage, true);
   if (result != 0) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_PV_VOLTAGE");
-  } else {
+  }
+  else {
     #ifdef DEBUG
       SERIAL_DEBUG.printf("PV_VOLTAGE: %f\n", TracerReadings.pvVoltage);
     #endif
@@ -389,7 +335,8 @@ void readTracer(){
   result = TRACER.readSingleInputRegisters(MODBUS_ADDRESS_PV_CURRENT, &TracerReadings.pvCurrent, true);
   if (result != 0) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_PV_CURRENT");
-  } else {
+  }
+  else {
     #ifdef DEBUG
       SERIAL_DEBUG.printf("PV_CURRENT: %f\n", TracerReadings.pvCurrent);
     #endif
@@ -414,33 +361,20 @@ void readTracer(){
   // }
 }
 
-void setupReadings(){
-  record.id = BOARD_ID;
-  record.location = LOCATION;
+void readTempHum(JsonArray *readArray) {
+  JsonObject env_temp = readArray->createNestedObject();
+  env_temp["data_id"] = TEMP_ID;
+  env_temp["unit"] = TEMP_UNIT;
+  JsonArray temp = env_temp.createNestedArray("data");
+  JsonObject singleTemp = temp.createNestedObject();
+  singleTemp["timestamp"] = (int)now();
+  singleTemp["val"] = dht.readTemperature();
 
-  #ifdef SENS_TEMPHUM
-    env_temperature.data_id = TEMP_ID;
-    env_temperature.unit = TEMP_UNIT;
-  #endif
-}
-
-void readTempHum() {
-  Reading actualData = {(int)now(), (double)random()};
-  // Reading actualData = {(int)now(), dht.readTemperature()};
-  env_temperature.data.push_back(actualData);
-}
-
-String composeMessage() {
-  #ifdef SENS_TEMPHUM
-    record.readings.push_back(env_temperature);
-    env_temperature.clearData();
-  #endif
-  // Convert DataRecord to JSON string
-  String message = record.toJson();
-  #ifdef DEBUG
-    SERIAL_DEBUG.println(message);
-  #endif
-  record.clearData();
-
-  return message;
+  JsonObject env_hum = readArray->createNestedObject();
+  env_hum["data_id"] = HUM_ID;
+  env_hum["unit"] = HUM_UNIT;
+  JsonArray hum = env_hum.createNestedArray("data");
+  JsonObject singleHum = hum.createNestedObject();
+  singleHum["timestamp"] = (int)now();
+  singleHum["val"] = dht.readHumidity();
 }
