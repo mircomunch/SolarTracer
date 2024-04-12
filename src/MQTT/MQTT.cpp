@@ -100,21 +100,21 @@ void MQTT::parseMessagge(char *topic, const char *payloadStr)
     {
         DynamicJsonDocument doc(1024);
         deserializeJson(doc, payloadStr);
-        // JsonArray array = doc.as<JsonArray>();
-        // for(JsonVariant v : array) {
-        //     DynamicJsonDocument elem(1024);
-        //     deserializeJson(elem, v.as<String>());
-        //     if (strcmp(elem["id"], BOARD_ID) == 0) {
-        //         this->cmdRun = elem["run"];
-        //         this->cmdLoad = elem["load"];
-        //     }
-        //     elem.clear();
-        // }
-        // OLD VERSION
-        if (strcmp(doc["id"], BOARD_ID) == 0) {
-            this->cmdRun = doc["run"];
-            this->cmdLoad = doc["load"];
+        JsonArray array = doc.as<JsonArray>();
+        for(JsonVariant v : array) {
+            DynamicJsonDocument elem(1024);
+            deserializeJson(elem, v.as<String>());
+            if (strcmp(elem["id"], BOARD_ID) == 0) {
+                this->cmdRun = elem["run"];
+                this->cmdLoad = elem["load"];
+            }
+            elem.clear();
         }
+        // OLD VERSION
+        // if (strcmp(doc["id"], BOARD_ID) == 0) {
+        //     this->cmdRun = doc["run"];
+        //     this->cmdLoad = doc["load"];
+        // }
         doc.clear();
     }
 }

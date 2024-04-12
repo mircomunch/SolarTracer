@@ -1,5 +1,3 @@
-#include <string>
-#include <vector>
 #include <header.hpp>
 #include <setup.hpp>
 #include <solarModbus.hpp>
@@ -256,7 +254,7 @@ void readTracer(JsonArray *readArray) {
     singleData["timestamp"] = (int)now();
     singleData["val"] = TracerReadings.batteryVoltage;
     #ifdef DEBUG
-      SERIAL_DEBUG.printf("BATTERY_VOLTAGE: %f\n", TracerReadings.batteryVoltage);
+      SERIAL_DEBUG.printf("BATTERY_VOLTAGE: %.2f\n", TracerReadings.batteryVoltage);
     #endif
   }
   // READ BATTERY_CHARGE_CURRENT
@@ -273,7 +271,7 @@ void readTracer(JsonArray *readArray) {
     singleData["timestamp"] = (int)now();
     singleData["val"] = TracerReadings.batteryCurrent;
     #ifdef DEBUG
-      SERIAL_DEBUG.printf("BATTERY_CURRENT: %f\n", TracerReadings.batteryCurrent);
+      SERIAL_DEBUG.printf("BATTERY_CURRENT: %.2f\n", TracerReadings.batteryCurrent);
     #endif
   }
   // READ BATTERY_SOC
@@ -290,7 +288,7 @@ void readTracer(JsonArray *readArray) {
     singleData["timestamp"] = (int)now();
     singleData["val"] = TracerReadings.batterySOC;
     #ifdef DEBUG
-      SERIAL_DEBUG.printf("BATTERY_SOC: %f\n", TracerReadings.batterySOC);
+      SERIAL_DEBUG.printf("BATTERY_SOC: %.2f\n", TracerReadings.batterySOC);
     #endif
   }
   // READ LOAD_VOLTAGE
@@ -307,7 +305,7 @@ void readTracer(JsonArray *readArray) {
     singleData["timestamp"] = (int)now();
     singleData["val"] = TracerReadings.loadVoltage;
 #ifdef DEBUG
-      SERIAL_DEBUG.printf("LOAD_VOLTAGE: %f\n", TracerReadings.loadVoltage);
+      SERIAL_DEBUG.printf("LOAD_VOLTAGE: %.2f\n", TracerReadings.loadVoltage);
     #endif
   }
   // READ LOAD_CURRENT
@@ -324,7 +322,7 @@ void readTracer(JsonArray *readArray) {
     singleData["timestamp"] = (int)now();
     singleData["val"] = TracerReadings.loadCurrent;
     #ifdef DEBUG
-      SERIAL_DEBUG.printf("LOAD_CURRENT: %f\n", TracerReadings.loadCurrent);
+      SERIAL_DEBUG.printf("LOAD_CURRENT: %.2f\n", TracerReadings.loadCurrent);
     #endif
   }
   // // READ LOAD_POWER
@@ -350,7 +348,7 @@ void readTracer(JsonArray *readArray) {
     singleData["timestamp"] = (int)now();
     singleData["val"] = TracerReadings.pvVoltage;
     #ifdef DEBUG
-      SERIAL_DEBUG.printf("PV_VOLTAGE: %f\n", TracerReadings.pvVoltage);
+      SERIAL_DEBUG.printf("PV_VOLTAGE: %.2f\n", TracerReadings.pvVoltage);
     #endif
   }
   // READ PV_CURRENT
@@ -367,7 +365,7 @@ void readTracer(JsonArray *readArray) {
     singleData["timestamp"] = (int)now();
     singleData["val"] = TracerReadings.pvCurrent;
     #ifdef DEBUG
-      SERIAL_DEBUG.printf("PV_CURRENT: %f\n", TracerReadings.pvCurrent);
+      SERIAL_DEBUG.printf("PV_CURRENT: %.2f\n", TracerReadings.pvCurrent);
     #endif
   }
   // // READ BATTERY_MAX_VOLTAGE_TODAY
