@@ -25,7 +25,8 @@ bool control = false;
 //   bool readTracer = false;
 //   bool readDht = false;
 //   bool publishMqtt = false;
-// } interrFlags;
+//   bool controlLoad = false;
+// } interruptsFlags;
 
 struct SolarData {
   uint16_t batteryType;
@@ -247,10 +248,10 @@ void readTracer(JsonArray *readArray) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_BATTERY_CURRENT_VOLTAGE");
   }
   else {
-    JsonObject data = readArray->createNestedObject();
-    data["data_id"] = BATT_V_ID;
-    data["unit"] = BATT_V_UNIT;
-    JsonArray data = data.createNestedArray("data");
+    JsonObject reading = readArray->createNestedObject();
+    reading["data_id"] = BATT_V_ID;
+    reading["unit"] = BATT_V_UNIT;
+    JsonArray data = reading.createNestedArray("data");
     JsonObject singleData = data.createNestedObject();
     singleData["timestamp"] = (int)now();
     singleData["val"] = TracerReadings.batteryVoltage;
@@ -264,10 +265,10 @@ void readTracer(JsonArray *readArray) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_BATTERY_CHARGE_CURRENT");
   }
   else {
-    JsonObject data = readArray->createNestedObject();
-    data["data_id"] = BATT_C_ID;
-    data["unit"] = BATT_C_UNIT;
-    JsonArray data = data.createNestedArray("data");
+    JsonObject reading = readArray->createNestedObject();
+    reading["data_id"] = BATT_C_ID;
+    reading["unit"] = BATT_C_UNIT;
+    JsonArray data = reading.createNestedArray("data");
     JsonObject singleData = data.createNestedObject();
     singleData["timestamp"] = (int)now();
     singleData["val"] = TracerReadings.batteryCurrent;
@@ -281,10 +282,10 @@ void readTracer(JsonArray *readArray) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_BATTERY_SOC");
   }
   else {
-    JsonObject data = readArray->createNestedObject();
-    data["data_id"] = BATT_SOC_ID;
-    data["unit"] = BATT_SOC_UNIT;
-    JsonArray data = data.createNestedArray("data");
+    JsonObject reading = readArray->createNestedObject();
+    reading["data_id"] = BATT_SOC_ID;
+    reading["unit"] = BATT_SOC_UNIT;
+    JsonArray data = reading.createNestedArray("data");
     JsonObject singleData = data.createNestedObject();
     singleData["timestamp"] = (int)now();
     singleData["val"] = TracerReadings.batterySOC;
@@ -298,7 +299,14 @@ void readTracer(JsonArray *readArray) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_LOAD_VOLTAGE");
   }
   else {
-    #ifdef DEBUG
+    JsonObject reading = readArray->createNestedObject();
+    reading["data_id"] = LOAD_V_ID;
+    reading["unit"] = LOAD_V_UNIT;
+    JsonArray data = reading.createNestedArray("data");
+    JsonObject singleData = data.createNestedObject();
+    singleData["timestamp"] = (int)now();
+    singleData["val"] = TracerReadings.loadVoltage;
+#ifdef DEBUG
       SERIAL_DEBUG.printf("LOAD_VOLTAGE: %f\n", TracerReadings.loadVoltage);
     #endif
   }
@@ -308,6 +316,13 @@ void readTracer(JsonArray *readArray) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_LOAD_CURRENT");
   }
   else {
+    JsonObject reading = readArray->createNestedObject();
+    reading["data_id"] = LOAD_C_ID;
+    reading["unit"] = LOAD_C_UNIT;
+    JsonArray data = reading.createNestedArray("data");
+    JsonObject singleData = data.createNestedObject();
+    singleData["timestamp"] = (int)now();
+    singleData["val"] = TracerReadings.loadCurrent;
     #ifdef DEBUG
       SERIAL_DEBUG.printf("LOAD_CURRENT: %f\n", TracerReadings.loadCurrent);
     #endif
@@ -327,6 +342,13 @@ void readTracer(JsonArray *readArray) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_PV_VOLTAGE");
   }
   else {
+    JsonObject reading = readArray->createNestedObject();
+    reading["data_id"] = PV_V_ID;
+    reading["unit"] = PV_V_UNIT;
+    JsonArray data = reading.createNestedArray("data");
+    JsonObject singleData = data.createNestedObject();
+    singleData["timestamp"] = (int)now();
+    singleData["val"] = TracerReadings.pvVoltage;
     #ifdef DEBUG
       SERIAL_DEBUG.printf("PV_VOLTAGE: %f\n", TracerReadings.pvVoltage);
     #endif
@@ -337,6 +359,13 @@ void readTracer(JsonArray *readArray) {
     TRACER.exceptionHandler(result, "Read", "MODBUS_ADDRESS_PV_CURRENT");
   }
   else {
+    JsonObject reading = readArray->createNestedObject();
+    reading["data_id"] = PV_C_ID;
+    reading["unit"] = PV_C_UNIT;
+    JsonArray data = reading.createNestedArray("data");
+    JsonObject singleData = data.createNestedObject();
+    singleData["timestamp"] = (int)now();
+    singleData["val"] = TracerReadings.pvCurrent;
     #ifdef DEBUG
       SERIAL_DEBUG.printf("PV_CURRENT: %f\n", TracerReadings.pvCurrent);
     #endif

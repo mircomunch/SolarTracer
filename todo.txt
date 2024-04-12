@@ -1,0 +1,17 @@
+uc
+
+- leggere tutti i dati
+- dividere 3 timer (lettura dht, lettura tracer, pubblicazione) -> gestire oppurtunamente l'aggiornamento degli array
+
+nodered
+
+- aggiornare data_id solo alla necessità
+x aggiornare grafico data_id con l'arrivo di un nuovo valore
+x aggiornare cmd run e load leggendo lo stato precedente e creando un array con tutti i device_id
+    -> lo stato degli switch non è possibile aggiornarlo nel modo corretto quando si seleziona un altro device_id
+- caricare su cloud AWS
+
+varie
+
+- prendere su materiale (cacciaviati, cavi, charge controller, pannellino, breadboard)
+- predisporre 2 sistemi con diverso wi-fi
