@@ -43,7 +43,7 @@
 #define MQTT_PUBLISH_MESSAGE_SIZE 1024
 
 // Timer configurations
-#define DATA_TIMER 10000
+#define DATA_TIMER 5000
 #define LOAD_TIMER 1000
 
 //SOLAR_TIMER
