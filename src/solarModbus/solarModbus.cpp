@@ -152,6 +152,7 @@ uint8_t SolarModbus::readSingleInputRegisters(uint16_t address, void *variable, 
     }
     if (result == this->node.ku8MBSuccess) {
         float value = (oneHundredTimes) ? node.getResponseBuffer(0)/100.0f : node.getResponseBuffer(0);
+        value = roundf(value * 100) / 100;
         memcpy(variable, &value, sizeof(variable));
     }
     return result;
