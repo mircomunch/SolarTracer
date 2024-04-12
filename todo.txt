@@ -1,7 +1,7 @@
 uc
 
 x leggere tutti i dati
-- dividere 3 timer (lettura dht, lettura tracer, pubblicazione) -> gestire oppurtunamente l'aggiornamento degli array
+x dividere 3 timer (lettura dht, lettura tracer, pubblicazione) -> gestire oppurtunamente l'aggiornamento degli array
 
 nodered
 
@@ -15,3 +15,9 @@ varie
 
 - prendere su materiale (cacciaviati, cavi, charge controller, pannellino, breadboard)
 - predisporre 2 sistemi con diverso wi-fi
+
+
+come procedere:
+1) testare branch main con nodered
+2) testare branch different_timer
+3) caricare node-red su AWS

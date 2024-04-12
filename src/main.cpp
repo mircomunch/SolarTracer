@@ -9,24 +9,21 @@
 MQTT mqtt;
 SolarModbus TRACER;
 
-TimerHandle_t dataTimer;
-TimerHandle_t loadTimer;
-// TimerHandle_t publishTimer;
-// TimerHandle_t readTracerTimer;
+TimerHandle_t controlLoadTimer;
+TimerHandle_t publishMqttTimer;
+TimerHandle_t readTracerTimer;
 
 #ifdef SENS_TEMPHUM
   DHTsensor dht;
-  // TimerHandle_t readTempHumTimer;
+  TimerHandle_t readTempHumTimer;
 #endif
 
-bool acq = false;
-bool control = false;
-// struct flags {
-//   bool readTracer = false;
-//   bool readDht = false;
-//   bool publishMqtt = false;
-//   bool controlLoad = false;
-// } interruptsFlags;
+struct flags {
+  bool readTracerData = false;
+  bool readTempHumData = false;
+  bool publishMqttData = false;
+  bool controlLoad = false;
+} interruptsFlags;
 
 struct SolarData {
   uint16_t batteryType;
@@ -67,12 +64,23 @@ void setupTracer();
   void readTempHum(JsonArray *readArray);
 #endif
 
-void dataPublishCallback() {
-  acq = true;
+DynamicJsonDocument doc(2048);
+JsonArray readings = doc.createNestedArray("readings");
+
+void publishMqttDataCallback() {
+  interruptsFlags.publishMqttData = true;
+}
+
+void readTempHumDataCallback() {
+  interruptsFlags.readTempHumData = true;
+}
+
+void readTracerDataCallback() {
+  interruptsFlags.readTracerData = true;
 }
 
 void loadControlCallback() {
-  control = true;
+  interruptsFlags.controlLoad = true;
 }
 
 void setup() {
@@ -82,12 +90,18 @@ void setup() {
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  dataTimer = xTimerCreate("dataTimer", pdMS_TO_TICKS(DATA_TIMER),
-                               pdFALSE, (void *)0,
-                               reinterpret_cast<TimerCallbackFunction_t>(dataPublishCallback));
-  loadTimer = xTimerCreate("loadTimer", pdMS_TO_TICKS(LOAD_TIMER),
-                           pdFALSE, (void *)0,
-                           reinterpret_cast<TimerCallbackFunction_t>(loadControlCallback));
+  publishMqttTimer = xTimerCreate("publishMqttTimer", pdMS_TO_TICKS(PUBLISH_TIMER),
+                                  pdFALSE, (void *)0,
+                                  reinterpret_cast<TimerCallbackFunction_t>(publishMqttDataCallback));
+  controlLoadTimer = xTimerCreate("controlLoadTimer", pdMS_TO_TICKS(LOAD_TIMER),
+                                  pdFALSE, (void *)0,
+                                  reinterpret_cast<TimerCallbackFunction_t>(loadControlCallback));
+  readTempHumTimer = xTimerCreate("readTempHumTimer", pdMS_TO_TICKS(TEMPHUM_TIMER),
+                                  pdFALSE, (void *)0,
+                                  reinterpret_cast<TimerCallbackFunction_t>(readTempHumDataCallback));
+  readTracerTimer = xTimerCreate("readTracerTimer", pdMS_TO_TICKS(TRACER_TIMER),
+                                 pdFALSE, (void *)0,
+                                 reinterpret_cast<TimerCallbackFunction_t>(readTracerDataCallback));
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -103,37 +117,49 @@ void setup() {
 
   /* SETUP TRACER */
   setupTracer();
+  doc["id"] = BOARD_ID;
+  doc["location"] = LOCATION;
 
   #ifdef DEBUG
     SERIAL_DEBUG.println("---------------");
   #endif
 
   /* START TIMERS */
-  xTimerStart(dataTimer, 0);
-  xTimerStart(loadTimer, 0);
+  xTimerStart(publishMqttTimer, 0);
+  xTimerStart(controlLoadTimer, 0);
+  xTimerStart(readTempHumTimer, 0);
+  xTimerStart(readTracerTimer, 0);
 }
 
 void loop() {
   if (!mqtt.client.connected())
     mqtt.reconnect();
   mqtt.client.loop();
-
-  if(acq) {
-    acq = false;
-    DynamicJsonDocument doc(2048);
-    doc["id"] = BOARD_ID;
-    doc["location"] = LOCATION;
+  if(interruptsFlags.readTempHumData) {
+    interruptsFlags.readTempHumData = false;
     if (mqtt.datetimeSetted && mqtt.cmdRun) {
-      JsonArray readings = doc.createNestedArray("readings");
       readTracer(&readings);
+    }
+    xTimerStart(readTempHumTimer, 0);
+  }
 
+  if(interruptsFlags.readTracerData) {
+    interruptsFlags.readTracerData = false;
+    if (mqtt.datetimeSetted && mqtt.cmdRun) {
       #ifdef SENS_TEMPHUM
         readTempHum(&readings);
       #endif
+    }
+    xTimerStart(readTracerTimer, 0);
+  }
 
+  if(interruptsFlags.publishMqttData) {
+    interruptsFlags.publishMqttData = false;
+    if (mqtt.datetimeSetted && mqtt.cmdRun) {
       String message;
       serializeJson(doc, message);
       SERIAL_DEBUG.println(message);
+      readings.clear();
 
       bool pubStatus = mqtt.publishMessage(MQTT_PUBLISH_TOPIC, message, false);
       if (!pubStatus) {
@@ -146,9 +172,11 @@ void loop() {
         #endif
       }
     }
-    xTimerStart(dataTimer, 0);
+    xTimerStart(publishMqttTimer, 0);
   }
-  if (control) {
+
+  if (interruptsFlags.controlLoad) {
+    interruptsFlags.controlLoad = false;
     uint8_t result;
     if (mqtt.cmdLoad) {
       // LOAD_ON
@@ -158,7 +186,7 @@ void loop() {
       result = TRACER.writeSingleCoil(TracerSettings.loadOff, MODBUS_ADDRESS_LOAD_MANUAL_ONOFF);
     }
     TRACER.exceptionHandler(result, "Write", "MODBUS_ADDRESS_LOAD_MANUAL_ONOFF");
-    xTimerStart(loadTimer, 0);
+    xTimerStart(controlLoadTimer, 0);
   }
 }
 
