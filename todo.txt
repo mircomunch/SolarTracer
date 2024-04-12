@@ -1,6 +1,6 @@
 uc
 
-- leggere tutti i dati
+x leggere tutti i dati
 - dividere 3 timer (lettura dht, lettura tracer, pubblicazione) -> gestire oppurtunamente l'aggiornamento degli array
 
 nodered
