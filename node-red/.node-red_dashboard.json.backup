@@ -444,6 +444,15 @@
         "className": ""
     },
     {
+        "id": "1bf7a63390811538",
+        "type": "ui_tab",
+        "name": "Settings",
+        "icon": "cog",
+        "order": 4,
+        "disabled": false,
+        "hidden": false
+    },
+    {
         "id": "bcdaebed.40b698",
         "type": "mqtt out",
         "z": "66a4ff9e.6ffac",
@@ -3000,7 +3009,7 @@
                 "t": "set",
                 "p": "len",
                 "pt": "global",
-                "to": "100",
+                "to": "0",
                 "tot": "num"
             }
         ],
