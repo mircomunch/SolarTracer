@@ -9,8 +9,8 @@
 #endif
 
 // BOARD NAME
-#define BOARD_ID "LL-1"
-#define LOCATION "ITA-Parma-Unipr"
+#define BOARD_ID "LL-Summer-School"
+#define LOCATION "RWA-Tumba-IPRC"
 
 // Sensors activated
 #define SENS_TEMPHUM
@@ -46,6 +46,6 @@
 #define DATA_TIMER 5000
 #define LOAD_TIMER 1000
 
-//SOLAR_TIMER
-//DHT_TIMER
-//PUBLISH_TIMER
+//#define SOLAR_TIMER 5000
+//#define DHT_TIMER 5000
+//#define PUBLISH_TIMER 10000

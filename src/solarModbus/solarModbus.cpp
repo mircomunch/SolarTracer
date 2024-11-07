@@ -6,7 +6,7 @@ SolarModbus::SolarModbus(Stream &serial) {
     pinMode(PIN_RE_DE, OUTPUT);
     digitalWrite(PIN_RE_DE, LOW);
 
-    SERIAL_STREAM.begin(SERIAL_STREAM_SPEED);
+    SERIAL_STREAM.begin(SERIAL_STREAM_SPEED, SERIAL_8N1, 16, 17);
     this->node.begin(MODBUS_ID, serial);
     this->node.preTransmission(setPin);
     this->node.postTransmission(resetPin);
