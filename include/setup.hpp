@@ -9,8 +9,8 @@
 #endif
 
 // BOARD NAME
-#define BOARD_ID "LL-Summer-School"
-#define LOCATION "RWA-Tumba-IPRC"
+#define BOARD_ID "LL-Parma"
+#define LOCATION "ITA-Parma-UNIPR"
 
 // Sensors activated
 #define SENS_TEMPHUM

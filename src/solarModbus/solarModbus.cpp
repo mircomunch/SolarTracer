@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <solarModbus.hpp>
+#include "solarModbus.hpp"
 #include "solarModbus_setup.hpp"
 
 SolarModbus::SolarModbus(Stream &serial) {

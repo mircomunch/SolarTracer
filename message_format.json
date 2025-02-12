@@ -1,6 +1,6 @@
 {
   "device_id":"LL-1",
-  "location":"IT-Parma-Unipr",
+  "location":"ITA-Parma-Unipr",
   "readings":[
     {
       "data_id":"env_temperature",
@@ -8,11 +8,7 @@
       "data":[
         {
           "timestamp":1712151335939,
-          "val":20.00
-        },
-        {
-          "timestamp":1712151329946,
-          "val":18.85
+          "val":20.23
         },
         {
           "timestamp":1712151338014,
@@ -27,10 +23,6 @@
         {
           "timestamp":1712151334394,
           "val":13.18
-        },
-        {
-          "timestamp":1712151329204,
-          "val":11.63
         }
       ]
     }
