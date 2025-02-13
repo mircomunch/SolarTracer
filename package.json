@@ -9,8 +9,8 @@
     },
     "node-red": {
         "settings": {
-            "flowFile": "node-red\\node-red_dashboard.json",
-            "credentialsFile": "node-red\\node-red_dashboard_cred.json"
+            "flowFile": "node-red/node-red_dashboard.json",
+            "credentialsFile": "node-red/node-red_dashboard_cred.json"
         }
     }
 }
