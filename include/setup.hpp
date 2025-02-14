@@ -1,5 +1,5 @@
 #include "solarModbus_setup.hpp"
-#include "dht11_setup.hpp" 
+#include "dht11_setup.hpp"
 
 // Serial debug
 #define DEBUG
