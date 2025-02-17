@@ -189,7 +189,7 @@ void loop()
 		DynamicJsonDocument doc(2048);
 		doc["id"] = BOARD_ID;
 		doc["location"] = LOCATION;
-		if (mqtt.datetimeSetted && mqtt.cmdRun)
+		if (datetimeSetted && cmdRun)
 		{
 			JsonArray readings = doc.createNestedArray("readings");
 			readTracer(&readings);
@@ -222,7 +222,7 @@ void loop()
 	if (control)
 	{
 		uint8_t result;
-		if (mqtt.cmdLoad)
+		if (cmdLoad)
 		{
 			// LOAD_ON
 			result = TRACER.writeSingleCoil(TracerSettings.loadOn, MODBUS_ADDRESS_LOAD_MANUAL_ONOFF);

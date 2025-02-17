@@ -13,24 +13,14 @@ class MQTT
     bool _cert_en;
     char *_user;
     char *_psw;
-    bool startup;
-
-    void setDatetime(String datetime);
-    void subscribeCallback(char *topic, byte *payload, unsigned int length);
-    void parseMessagge(char *topic, const char *payloadStr);
 
 public:
     PubSubClient client;
     MQTT(String board_id, char *host, uint16_t port);
     MQTT(String board_id, char *host, uint16_t port, int msg_size);
     MQTT(String board_id, char *host, uint16_t port, int msg_size, bool cert_en, char *user, char *psw);
-    // void reconnect();
     bool reconnect();
-    bool publishMessage(const char *topic, String payload, boolean retained);
-
-    bool datetimeSetted;
-    bool cmdRun;
-    bool cmdLoad;
+    bool publishMessage(const char *topic, String payload, bool retained);
 };
 
 static const char *root_ca PROGMEM = R"EOF(

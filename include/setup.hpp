@@ -22,26 +22,30 @@
 #endif
 
 // WiFI configurations
-#define WIFI_SSID "Greater"
-#define WIFI_PASSWORD "greater23"
-// #define WIFI_SSID "BATCAVE"
-// #define WIFI_PASSWORD "bathello01"
+// #define WIFI_SSID "Greater"
+// #define WIFI_PASSWORD "greater23"
+#define WIFI_SSID "Batcaverna"
+#define WIFI_PASSWORD "Spiderman"
 
 // MQTT configurations
-// #define MQTT_HOST "broker.hivemq.com"
-// #define MQTT_HOST "test.mosquitto.org"
-// #define MQTT_PORT 1883
-#define MQTT_HOST "350fd0725fa14a069e04d387121e69f7.s2.eu.hivemq.cloud"
-#define MQTT_PORT 8883
+#define MQTT_AUTH
+#ifdef MQTT_AUTH
+	#define MQTT_HOST "350fd0725fa14a069e04d387121e69f7.s2.eu.hivemq.cloud"
+	#define MQTT_PORT 8883
+	#define MQTT_USER "admin"
+	#define MQTT_PASSWORD "Admin123"
+	#define MQTT_CERT_EN true // define if certificate needed for broker connection
+#else
+	#define MQTT_HOST "broker.hivemq.com"
+	#define MQTT_PORT 1883
+#endif
+
 #define MQTT_TOPIC "living-labs/"
 #define MQTT_PUBLISH_TOPIC MQTT_TOPIC "data"
 #define MQTT_DATETIME_TOPIC MQTT_TOPIC "datetime"
 #define MQTT_CMD_TOPIC MQTT_TOPIC "cmd"
 #define MQTT_QOS_SUB 1
-#define MQTT_USER "admin"
-#define MQTT_PASSWORD "Admin123"
-#define CERT // define if certificate needed for broker connection
-#define MQTT_PUBLISH_MESSAGE_SIZE 1024
+#define MQTT_PUBLISH_MESSAGE_MAX_SIZE 65536 / 2 // MQTT publish max size = 256MB
 
 // Timer configurations
 #define DATA_TIMER 5000
