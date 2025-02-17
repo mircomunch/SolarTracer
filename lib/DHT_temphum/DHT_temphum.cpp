@@ -1,7 +1,6 @@
-#include "DHT_temphum.hpp"
-#include "dht11_setup.hpp"
+#include <DHT_temphum.hpp>
 
-DHTsensor::DHTsensor() : dhtu(DHTPIN, DHTTYPE)
+DHTsensor::DHTsensor() : dhtu(13, DHT11)
 {}
 
 float DHTsensor::readTemperature()

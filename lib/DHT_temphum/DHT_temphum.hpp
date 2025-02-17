@@ -1,5 +1,5 @@
-#include "header.hpp"
-#include "setup.hpp"
+#include <Adafruit_Sensor.h>
+#include <DHT_U.h>
 
 class DHTsensor
 {

@@ -1,9 +1,18 @@
-#include "setup.hpp"
-#include "header.hpp"
+#include <Arduino.h>
+#include <WiFiClientSecure.h>
+#include <PubSubClient.h>
 
 class MQTT
 {
-    WiFiClientSecure espClient;
+    WiFiClientSecure _securedClient;
+    WiFiClient _unsecuredClient;
+    String _board_id;
+    char *_host;
+    uint16_t _port;
+    int _msg_size;
+    bool _cert_en;
+    char *_user;
+    char *_psw;
     bool startup;
 
     void setDatetime(String datetime);
@@ -11,9 +20,12 @@ class MQTT
     void parseMessagge(char *topic, const char *payloadStr);
 
 public:
-    MQTT();
     PubSubClient client;
-    void reconnect();
+    MQTT(String board_id, char *host, uint16_t port);
+    MQTT(String board_id, char *host, uint16_t port, int msg_size);
+    MQTT(String board_id, char *host, uint16_t port, int msg_size, bool cert_en, char *user, char *psw);
+    // void reconnect();
+    bool reconnect();
     bool publishMessage(const char *topic, String payload, boolean retained);
 
     bool datetimeSetted;

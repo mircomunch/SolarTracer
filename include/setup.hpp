@@ -37,6 +37,7 @@
 #define MQTT_PUBLISH_TOPIC MQTT_TOPIC "data"
 #define MQTT_DATETIME_TOPIC MQTT_TOPIC "datetime"
 #define MQTT_CMD_TOPIC MQTT_TOPIC "cmd"
+#define MQTT_QOS_SUB 1
 #define MQTT_USER "admin"
 #define MQTT_PASSWORD "Admin123"
 #define CERT // define if certificate needed for broker connection

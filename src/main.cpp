@@ -1,22 +1,41 @@
-#include <header.hpp>
-#include <setup.hpp>
-#include "./solarModbus/solarModbus.hpp"
-#include "./sensors/DHT_temphum/DHT_temphum.hpp"
-#include "./MQTT/MQTT.hpp"
+#include <Arduino.h>
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
+#include <TimeLib.h>
+#include <ArduinoJson.h>
 
-MQTT mqtt;
-SolarModbus TRACER;
+#include <setup.hpp>
+#include <solarModbus.hpp>
+#include <DHT_temphum.hpp>
+#include <MQTT.hpp>
+#include <modbusAddress.hpp>
+
+SolarModbus TRACER(PIN_RE_DE, PIN_DI, PIN_RO, READ_TENTATIVE, TRACER_MODBUS_ID, TRACER_SERIAL_STREAM_SPEED, TRACER_SERIAL_STREAM, TRACER_SERIAL_STREAM);
+char _host_char[sizeof(MQTT_HOST)] = MQTT_HOST;
+
+#ifdef MQTT_AUTH
+char _host_user[sizeof(MQTT_USER)] = MQTT_USER;
+char _host_psw[sizeof(MQTT_PASSWORD)] = MQTT_PASSWORD;
+MQTT mqtt(BOARD_ID, _host_char, MQTT_PORT, MQTT_PUBLISH_MESSAGE_MAX_SIZE, MQTT_CERT_EN, _host_user, _host_psw);
+#else
+MQTT mqtt(BOARD_ID, _host_char, MQTT_PORT);
+#endif
 
 TimerHandle_t dataTimer;
 TimerHandle_t loadTimer;
 // TimerHandle_t publishTimer;
 // TimerHandle_t readTracerTimer;
+long mqttReconnectAttempt = 0;
+long wifiReconnectAttempt = 0;
 
 #ifdef SENS_TEMPHUM
 DHTsensor dht;
 // TimerHandle_t readTempHumTimer;
 #endif
 
+bool datetimeSetted = false;
+bool cmdRun = false;
+bool cmdLoad = false;
 bool acq = false;
 bool control = false;
 // struct flags
@@ -65,18 +84,13 @@ struct SolarSettings
 void readTracer(JsonArray *readArray);
 void setupTracer();
 #ifdef SENS_TEMPHUM
-void readTempHum(JsonArray *readArray);
+    void readTempHum(JsonArray *readArray);
 #endif
-
-void dataPublishCallback()
-{
-	acq = true;
-}
-
-void loadControlCallback()
-{
-	control = true;
-}
+void setDatetime(String datetime);
+void mqttSubscribeCallback(char *topic, byte *payload, unsigned int length);
+void mqttParseMessage(char *topic, const char *payloadStr);
+void dataPublishCallback();
+void loadControlCallback();
 
 void setup()
 {
@@ -120,8 +134,53 @@ void setup()
 
 void loop()
 {
-	if (!mqtt.client.connected())
-		mqtt.reconnect();
+    if (WiFi.status() != WL_CONNECTED)
+    {
+        long now = millis();
+        if (now - wifiReconnectAttempt > 5000)
+        {
+            wifiReconnectAttempt = now;
+            #ifdef DEBUG
+                SERIAL_DEBUG.println("Reconnecting to WiFi...");
+            #endif
+            if (WiFi.begin(WIFI_SSID, WIFI_PASSWORD) == WL_CONNECTED)
+            {
+                #ifdef DEBUG
+                    SERIAL_DEBUG.println("Connected to: " + String(WIFI_SSID));
+                #endif
+                wifiReconnectAttempt = 0;
+                return;
+            }
+        }
+    }
+	
+    if (!mqtt.client.connected())
+    {
+        long now = millis();
+        if (now - mqttReconnectAttempt > 5000)
+        {
+            mqttReconnectAttempt = now;
+            if (mqtt.reconnect())
+            {
+                // Manage subscriptions
+                if (mqtt.client.subscribe(MQTT_DATETIME_TOPIC, MQTT_QOS_SUB))
+                {
+                    #ifdef DEBUG
+                        SERIAL_DEBUG.println("Subscribed to: " + String(MQTT_DATETIME_TOPIC));
+                    #endif
+                }
+                if (mqtt.client.subscribe(MQTT_CMD_TOPIC, MQTT_QOS_SUB))
+                {
+                    #ifdef DEBUG
+                        SERIAL_DEBUG.println("Subscribed to: " + String(MQTT_CMD_TOPIC));
+                    #endif
+                }
+                mqtt.client.setCallback(mqttSubscribeCallback);
+                mqttReconnectAttempt = 0;
+                return;
+            }
+        }
+    }
 	mqtt.client.loop();
 
 	if (acq)
@@ -448,4 +507,74 @@ void readTempHum(JsonArray *readArray)
 	JsonObject singleHum = hum.createNestedObject();
 	singleHum["timestamp"] = (int)now();
 	singleHum["val"] = dht.readHumidity();
+}
+
+void setDatetime(String datetime)
+{
+    uint64_t datetimeD = datetime.toDouble();
+    if (datetimeD > 0)
+    {
+        setTime(datetimeD);
+    }
+    datetimeSetted = true;
+}
+
+void mqttSubscribeCallback(char *topic, byte *payload, unsigned int length)
+{
+    #ifdef DEBUG
+        SERIAL_DEBUG.print("Message arrived [");
+        SERIAL_DEBUG.print(topic);
+        SERIAL_DEBUG.print("]: ");
+    #endif
+    String payloadStr;
+    for (int i = 0; i < length; i++)
+    {
+        payloadStr += (char)payload[i];
+    }
+    #ifdef DEBUG
+        SERIAL_DEBUG.println(payloadStr);
+    #endif
+
+    mqttParseMessage(topic, payloadStr.c_str());
+}
+
+void mqttParseMessage(char *topic, const char *payloadStr)
+{
+    if (strcmp(topic, MQTT_DATETIME_TOPIC) == 0)
+    {
+        setDatetime(payloadStr);
+    }
+    if (strcmp(topic, MQTT_CMD_TOPIC) == 0)
+    {
+        DynamicJsonDocument doc(1024);
+        deserializeJson(doc, payloadStr);
+        JsonArray array = doc.as<JsonArray>();
+        for (JsonVariant v : array)
+        {
+            DynamicJsonDocument elem(1024);
+            deserializeJson(elem, v.as<String>());
+            if (strcmp(elem["id"], BOARD_ID) == 0)
+            {
+                cmdRun = elem["run"];
+                cmdLoad = elem["load"];
+            }
+            elem.clear();
+        }
+        // OLD VERSION
+        // if (strcmp(doc["id"], BOARD_ID) == 0) {
+        //     this->cmdRun = doc["run"];
+        //     this->cmdLoad = doc["load"];
+        // }
+        doc.clear();
+    }
+}
+
+void dataPublishCallback()
+{
+    acq = true;
+}
+
+void loadControlCallback()
+{
+    control = true;
 }
