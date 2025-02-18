@@ -5,9 +5,6 @@
     #define SERIAL_DEBUG_SPEED 115200
 #endif
 
-// Number of tentatives for each readings
-#define READ_TENTATIVE 2
-
 // MAX 485 pin DE, not(RE) connected togheter
 #define PIN_RE_DE 27
 #define PIN_RO 16 // RX

@@ -5,10 +5,11 @@
 #include <ArduinoJson.h>
 
 #include <setup.hpp>
-#include <solarModbus.hpp>
-#include <DHT_temphum.hpp>
 #include <MQTT.hpp>
+#include <solarModbus.hpp>
 #include <modbusAddress.hpp>
+#include <DHT_temphum.hpp>
+#include <powerReader.hpp>
 
 SolarModbus TRACER(PIN_RE_DE, PIN_DI, PIN_RO, READ_TENTATIVE, TRACER_MODBUS_ID, TRACER_SERIAL_STREAM_SPEED, TRACER_SERIAL_STREAM, TRACER_SERIAL_STREAM);
 char _host_char[sizeof(MQTT_HOST)] = MQTT_HOST;
@@ -21,9 +22,8 @@ MQTT mqtt(BOARD_ID, _host_char, MQTT_PORT, MQTT_PUBLISH_MESSAGE_MAX_SIZE, MQTT_C
 MQTT mqtt(BOARD_ID, _host_char, MQTT_PORT);
 #endif
 
-TimerHandle_t dataTimer;
+TimerHandle_t publishTimer;
 TimerHandle_t loadTimer;
-// TimerHandle_t publishTimer;
 // TimerHandle_t readTracerTimer;
 long mqttReconnectAttempt = 0;
 long wifiReconnectAttempt = 0;
@@ -31,6 +31,11 @@ long wifiReconnectAttempt = 0;
 #ifdef SENS_TEMPHUM
 DHTsensor dht;
 // TimerHandle_t readTempHumTimer;
+#endif
+
+#ifdef SENS_POWERINV
+PowerReader JSY_MK(JSY_PIN_TX, JSY_PIN_RX, JSY_SERIAL_STREAM_SPEED, JSY_MODBUS_ID, READ_TENTATIVE, JSY_SERIAL_STREAM, JSY_SERIAL_STREAM);
+// TimerHandle_t readPowerTimer;
 #endif
 
 bool datetimeSetted = false;
@@ -81,10 +86,24 @@ struct SolarSettings
 	uint16_t loadOff = 0x0000;
 } TracerSettings;
 
+struct JSYData
+{
+	float voltage;
+	float current;
+	float power;
+	float energy;
+	float powerfactor;
+	float powerdirection;
+	float frequency;
+} JSYReadings;
+
 void readTracer(JsonArray *readArray);
 void setupTracer();
 #ifdef SENS_TEMPHUM
     void readTempHum(JsonArray *readArray);
+#endif
+#ifdef SENS_POWERINV
+    void readPower(JsonArray *readArray);
 #endif
 void setDatetime(String datetime);
 void mqttSubscribeCallback(char *topic, byte *payload, unsigned int length);
@@ -92,7 +111,7 @@ void mqttParseMessage(char *topic, const char *payloadStr);
 void dataPublishCallback();
 void loadControlCallback();
 
-void setup()
+void set()
 {
 	#ifdef DEBUG
 		SERIAL_DEBUG.begin(SERIAL_DEBUG_SPEED);
@@ -100,39 +119,27 @@ void setup()
 
 	WiFi.mode(WIFI_STA);
 	WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-	dataTimer = xTimerCreate("dataTimer", pdMS_TO_TICKS(DATA_TIMER),
+	publishTimer = xTimerCreate("publishTimer", pdMS_TO_TICKS(DATA_TIMER),
 							 pdFALSE, (void *)0,
 							 reinterpret_cast<TimerCallbackFunction_t>(dataPublishCallback));
 	loadTimer = xTimerCreate("loadTimer", pdMS_TO_TICKS(LOAD_TIMER),
 							 pdFALSE, (void *)0,
 							 reinterpret_cast<TimerCallbackFunction_t>(loadControlCallback));
 
-	while (WiFi.status() != WL_CONNECTED)
-	{
-		delay(500);
-		#ifdef DEBUG
-			SERIAL_DEBUG.print(".");
-		#endif
-	}
-	#ifdef DEBUG
-		SERIAL_DEBUG.println("\nWiFi connected\nIP address: ");
-		SERIAL_DEBUG.println(WiFi.localIP());
-		SERIAL_DEBUG.println("Init...");
-	#endif
-
 	/* SETUP TRACER */
 	setupTracer();
+	JSY_MK.begin();
 
 	#ifdef DEBUG
 		SERIAL_DEBUG.println("---------------");
 	#endif
 
 	/* START TIMERS */
-	xTimerStart(dataTimer, 0);
+	xTimerStart(publishTimer, 0);
 	xTimerStart(loadTimer, 0);
 }
 
-void loop()
+void exec()
 {
     if (WiFi.status() != WL_CONNECTED)
     {
@@ -197,10 +204,15 @@ void loop()
 			#ifdef SENS_TEMPHUM
 				readTempHum(&readings);
 			#endif
+            #ifdef SENS_POWERINV
+				readPower(&readings);
+			#endif
 
 			String message;
 			serializeJson(doc, message);
-			SERIAL_DEBUG.println(message);
+			#ifdef DEBUG
+				SERIAL_DEBUG.println(message);
+			#endif
 
 			bool pubStatus = mqtt.publishMessage(MQTT_PUBLISH_TOPIC, message, false);
 			if (!pubStatus)
@@ -216,7 +228,7 @@ void loop()
 				#endif
 			}
 		}
-		xTimerStart(dataTimer, 0);
+		xTimerStart(publishTimer, 0);
 	}
 
 	if (control)
@@ -490,6 +502,113 @@ void readTracer(JsonArray *readArray)
 	// }
 }
 
+void readPower(JsonArray *readArray)
+{
+    uint8_t result;
+	result = JSY_MK.test();
+	if (result == 0)
+	{
+		result = JSY_MK.readVoltage(JSY_CLAMP, &JSYReadings.voltage);
+		if (result == 0)
+		{
+			JsonObject reading = readArray->createNestedObject();
+			reading["data_id"] = INV_V_ID;
+			reading["unit"] = INV_V_UNIT;
+			JsonArray data = reading.createNestedArray("data");
+			JsonObject singleData = data.createNestedObject();
+			singleData["timestamp"] = (int)now();
+			singleData["val"] = JSYReadings.voltage;
+			#ifdef DEBUG
+				SERIAL_DEBUG.printf("INV_VOLTAGE: %.2f\n", JSYReadings.voltage);
+			#endif
+		}
+		result = JSY_MK.readCurrent(JSY_CLAMP, &JSYReadings.current);
+		if (result == 0)
+		{
+			JsonObject reading = readArray->createNestedObject();
+			reading["data_id"] = INV_C_ID;
+			reading["unit"] = INV_C_UNIT;
+			JsonArray data = reading.createNestedArray("data");
+			JsonObject singleData = data.createNestedObject();
+			singleData["timestamp"] = (int)now();
+			singleData["val"] = JSYReadings.current;
+			#ifdef DEBUG
+					SERIAL_DEBUG.printf("INV_CURRENT: %.2f\n", JSYReadings.current);
+			#endif
+		}
+		result = JSY_MK.readPower(JSY_CLAMP, &JSYReadings.power);
+		if (result == 0)
+		{
+			JsonObject reading = readArray->createNestedObject();
+			reading["data_id"] = INV_POW_ID;
+			reading["unit"] = INV_POW_UNIT;
+			JsonArray data = reading.createNestedArray("data");
+			JsonObject singleData = data.createNestedObject();
+			singleData["timestamp"] = (int)now();
+			singleData["val"] = JSYReadings.power;
+			#ifdef DEBUG
+					SERIAL_DEBUG.printf("INV_POWER: %.2f\n", JSYReadings.power);
+			#endif
+		}
+		result = JSY_MK.readEnergy(JSY_CLAMP, &JSYReadings.energy);
+		if (result == 0)
+		{
+			JsonObject reading = readArray->createNestedObject();
+			reading["data_id"] = INV_ENER_ID;
+			reading["unit"] = INV_ENER_UNIT;
+			JsonArray data = reading.createNestedArray("data");
+			JsonObject singleData = data.createNestedObject();
+			singleData["timestamp"] = (int)now();
+			singleData["val"] = JSYReadings.energy;
+			#ifdef DEBUG
+					SERIAL_DEBUG.printf("INV_ENERGY: %.2f\n", JSYReadings.energy);
+			#endif
+		}
+		result = JSY_MK.readPowerfactor(JSY_CLAMP, &JSYReadings.powerfactor);
+		if (result == 0)
+		{
+			JsonObject reading = readArray->createNestedObject();
+			reading["data_id"] = INV_PF_ID;
+			reading["unit"] = INV_PF_UNIT;
+			JsonArray data = reading.createNestedArray("data");
+			JsonObject singleData = data.createNestedObject();
+			singleData["timestamp"] = (int)now();
+			singleData["val"] = JSYReadings.powerfactor;
+			#ifdef DEBUG
+					SERIAL_DEBUG.printf("INV_PF: %.2f\n", JSYReadings.powerfactor);
+			#endif
+		}
+		result = JSY_MK.readPowerdirection(&JSYReadings.powerdirection);
+		if (result == 0)
+		{
+			JsonObject reading = readArray->createNestedObject();
+			reading["data_id"] = INV_PD_ID;
+			reading["unit"] = INV_PD_UNIT;
+			JsonArray data = reading.createNestedArray("data");
+			JsonObject singleData = data.createNestedObject();
+			singleData["timestamp"] = (int)now();
+			singleData["val"] = JSYReadings.powerdirection;
+			#ifdef DEBUG
+					SERIAL_DEBUG.printf("INV_PD: %.2f\n", JSYReadings.powerdirection);
+			#endif
+		}
+		result = JSY_MK.readFrequency(&JSYReadings.frequency);
+		if (result == 0)
+		{
+			JsonObject reading = readArray->createNestedObject();
+			reading["data_id"] = INV_F_ID;
+			reading["unit"] = INV_F_UNIT;
+			JsonArray data = reading.createNestedArray("data");
+			JsonObject singleData = data.createNestedObject();
+			singleData["timestamp"] = (int)now();
+			singleData["val"] = JSYReadings.frequency;
+			#ifdef DEBUG
+					SERIAL_DEBUG.printf("INV_FREQ: %.2f\n", JSYReadings.frequency);
+			#endif
+		}
+	}
+}
+
 void readTempHum(JsonArray *readArray)
 {
 	JsonObject env_temp = readArray->createNestedObject();
@@ -499,6 +618,9 @@ void readTempHum(JsonArray *readArray)
 	JsonObject singleTemp = temp.createNestedObject();
 	singleTemp["timestamp"] = (int)now();
 	singleTemp["val"] = dht.readTemperature();
+	#ifdef DEBUG
+		SERIAL_DEBUG.printf("ENV_TEMP: %.2f\n", dht.readTemperature());
+	#endif
 
 	JsonObject env_hum = readArray->createNestedObject();
 	env_hum["data_id"] = HUM_ID;
@@ -507,6 +629,9 @@ void readTempHum(JsonArray *readArray)
 	JsonObject singleHum = hum.createNestedObject();
 	singleHum["timestamp"] = (int)now();
 	singleHum["val"] = dht.readHumidity();
+	#ifdef DEBUG
+		SERIAL_DEBUG.printf("ENV_HUM: %.2f\n", dht.readHumidity());
+	#endif
 }
 
 void setDatetime(String datetime)
@@ -578,3 +703,14 @@ void loadControlCallback()
 {
     control = true;
 }
+
+// Standard loop and setup with loop inside for better watchdog management
+void setup()
+{
+    set();
+    while (1)
+    {
+        exec();
+    }
+}
+void loop() {}

@@ -62,7 +62,7 @@ uint8_t PowerReader::readModbusRegister(uint16_t reg, float divisor, float *vari
 {
     uint8_t result = 255;
     int iter = 0;
-    while (result != 0 and iter < _nIter)
+    while (result != 0 and iter < this->_nIter)
     {
         result = this->_modbusNode.readHoldingRegisters(reg, 2);
         iter++;
@@ -72,23 +72,32 @@ uint8_t PowerReader::readModbusRegister(uint16_t reg, float divisor, float *vari
     {
         uint32_t rawData = (this->_modbusNode.getResponseBuffer(0) << 16) | this->_modbusNode.getResponseBuffer(1);
         float value = rawData / divisor;
-        // Serial.println("rawData:" + String(rawData));
-        // Serial.println("divisor:" + String(divisor));
-        // Serial.println("value:" + String(value));
         memcpy(variable, &value, sizeof(variable));
     }
     return result;
 }
 
-// Legge lìindirizzo di test
+// Legge l'indirizzo di test everifica che contenga il valore aspettato (0x0194)
 uint8_t PowerReader::test()
 {
-    uint8_t result = 254;
-    float *variable;
-    result = readModbusRegister(0x0000, 1.0, variable);
-    // if(*variable != 404){
-    //     result = 255;
-    // }
+    uint8_t result = 255;
+    int iter = 0;
+    uint16_t variable;
+    while (result != 0 and iter < this->_nIter)
+    {
+        result = this->_modbusNode.readHoldingRegisters(0x0000, 1);
+        iter++;
+    }
+
+    if (result == this->_modbusNode.ku8MBSuccess)
+    {
+        uint16_t value = this->_modbusNode.getResponseBuffer(0);
+        memcpy(&variable, &value, sizeof(variable));
+    }
+    if (variable != 404)
+    {
+        result = 255;
+    }
     return result;
 }
 
